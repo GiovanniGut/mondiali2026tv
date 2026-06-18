@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mondiali RAI 2026 - Calendario in Chiaro</title>
+    <!-- Tailwind CSS per un design moderno e responsive -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icone Lucide per una grafica pulita ed elegante -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Animazioni personalizzate */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+        /* Custom scrollbar per il tema dark */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-white font-sans selection:bg-sky-500 selection:text-white pb-10 min-h-screen">
+
+    <!-- Toast Notification (Sostituto di alert) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-sky-600 hover:bg-sky-500 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all transform translate-y-20 opacity-0 pointer-events-none duration-300">
+        <i data-lucide="check-circle" class="w-5 h-5"></i>
+        <span id="toast-message" class="font-medium text-sm">Messaggio</span>
+    </div>
+
+    <!-- Header Premium -->
+    <header class="relative overflow-hidden bg-slate-900 border-b border-slate-800">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-10 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                
+                <!-- Titolo e Logo -->
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-sky-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-sky-950/50 border border-sky-400/20">
+                        <i data-lucide="tv" class="w-8 h-8 text-white animate-pulse"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-sky-500/10 text-sky-400 border border-sky-500/20 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
+                                <i data-lucide="sparkles" class="w-3 h-3"></i> Live dal Nord America 2026
+                            </span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+                            Mondiali RAI 2026
+                        </h1>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                            Guida TV e calendario delle 35 partite trasmesse gratis in Italia sulla RAI
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Banner Oggi - Partita di stasera e Countdown -->
+                <div class="w-full md:w-auto bg-slate-950/80 backdrop-blur border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-5 shadow-inner">
+                    <div class="flex items-center gap-3">
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                        </span>
+                        <div class="text-center sm:text-left">
+                            <span class="text-[10px] text-red-400 font-bold uppercase tracking-widest block">Stasera in Chiaro</span>
+                            <span class="font-bold text-sm text-slate-100">🇨🇭 Svizzera - Bosnia 🇧🇦</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t sm:border-t-0 sm:border-l border-slate-800 w-full sm:w-auto pt-3 sm:pt-0 sm:pl-5 flex items-center justify-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4 text-sky-400"></i>
+                        <span class="text-xs text-slate-400">Inizia tra:</span>
+                        <div id="countdown-timer" class="flex items-center gap-1 font-mono text-xs font-semibold text-sky-300">
+                            <span id="hours" class="bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">00</span>h
+                            <span id="minutes" class="bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">00</span>m
+                            <span id="seconds" class="bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded text-sky-400 animate-pulse">00</span>s
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenuto Principale -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Sidebar Sinistra: Filtri & Mini-Giochi -->
+            <section class="lg:col-span-1 space-y-6">
+                
+                <!-- Pulsante Trivia Quiz Calcistico -->
+                <button onclick="openQuiz()" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-extrabold text-sm py-4 px-5 rounded-2xl flex items-center justify-between shadow-lg shadow-orange-950/20 transform hover:-translate-y-0.5 transition-all">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="trophy" class="w-6 h-6 text-yellow-200 animate-bounce"></i>
+                        <div class="text-left">
+                          <span class="block text-[11px] font-bold text-yellow-100 uppercase tracking-widest">Rai Sport Trivia</span>
+                          <span class="text-base font-black">Gioca al Quiz! ⚽</span>
+                        </div>
+                    </div>
+                    <div id="quiz-badge" class="bg-black/20 text-xs px-2.5 py-1 rounded-xl">Score: 0</div>
+                </button>
+
+                <!-- Cerca -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+                    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i data-lucide="search" class="w-4 h-4 text-sky-500"></i> Cerca Squadra o Stadio
+                    </h2>
+                    <div class="relative">
+                        <input
+                            type="text"
+                            id="search-input"
+                            placeholder="Es. Brasile, Boston..."
+                            class="w-full bg-slate-950 border border-slate-800 text-sm rounded-xl px-4 py-2.5 pl-10 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all placeholder:text-slate-600"
+                        />
+                        <i data-lucide="search" class="absolute left-3.5 top-3 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <!-- Scorciatoie rapide -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-3">
+                    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <i data-lucide="filter" class="w-4 h-4 text-sky-500"></i> Scorciatoie
+                    </h2>
+                    
+                    <button onclick="toggleTodayOnly()" id="btn-filter-today" class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-all bg-slate-950 hover:bg-slate-800/50 border border-slate-800 text-slate-300">
+                        <span class="flex items-center gap-2">
+                          <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                          </span>
+                          Partite di Oggi (18 Giugno)
+                        </span>
+                        <span class="bg-slate-900/80 px-1.5 py-0.5 rounded text-[10px]" id="count-today">1</span>
+                    </button>
+
+                    <button onclick="toggleFavoritesOnly()" id="btn-filter-favs" class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-all bg-slate-950 hover:bg-slate-800/50 border border-slate-800 text-slate-300">
+                        <span class="flex items-center gap-2">
+                          <i data-lucide="star" class="w-3.5 h-3.5"></i>
+                          Solo Preferiti
+                        </span>
+                        <span class="bg-slate-900/80 px-1.5 py-0.5 rounded text-[10px]" id="count-favs">0</span>
+                    </button>
+                </div>
+
+                <!-- Filtro per Fase -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+                    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i data-lucide="calendar" class="w-4 h-4 text-sky-500"></i> Fase del Torneo
+                    </h2>
+                    <div class="space-y-1.5" id="phase-filters-container">
+                        <!-- Generato dinamicamente via JS -->
+                    </div>
+                </div>
+
+                <!-- Filtro Canale -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+                    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i data-lucide="tv" class="w-4 h-4 text-sky-500"></i> Canale RAI
+                    </h2>
+                    <div class="flex flex-wrap gap-1.5" id="channel-filters-container">
+                        <!-- Generato dinamicamente via JS -->
+                    </div>
+                </div>
+
+                <!-- Info Diritti TV -->
+                <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-5 space-y-3">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-3.5 h-3.5 text-sky-500"></i> Info Diritti TV
+                    </h3>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">
+                        La <strong>RAI</strong> garantisce la visione <strong>gratuita e in chiaro</strong> di una selezione premium di 35 partite su Rai 1, Rai 2 e RaiPlay. Nessun abbonamento richiesto.
+                    </p>
+                </div>
+
+            </section>
+
+            <!-- Elenco Partite e Contenuto Centrale -->
+            <section class="lg:col-span-3 space-y-6">
+                
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-200" id="results-count">
+                            Palinsesto Partite RAI
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">
+                            Fusi orari italiani (CET/CEST) calcolati in tempo reale
+                        </p>
+                    </div>
+                    <span class="bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-bold px-3 py-1 rounded-full">
+                        📅 Oggi: 18 Giugno 2026
+                    </span>
+                </div>
+
+                <!-- Lista Match -->
+                <div id="matches-list" class="space-y-4">
+                    <!-- Generato dinamicamente via JS -->
+                </div>
+
+                <!-- Programmazione Show RAI -->
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6 relative overflow-hidden shadow-xl">
+                    <div class="absolute top-0 right-0 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-sky-500/10 rounded-xl flex items-center justify-center border border-sky-500/20">
+                            <i data-lucide="trending-up" class="w-5 h-5 text-sky-400"></i>
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-100">La Programmazione Tv RAI Dedicata</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">
+                                Tutti i talk show e i programmi giornalieri trasmessi durante la competizione
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="programs-container">
+                        <!-- Generato dinamicamente via JS -->
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- --- MODALE TRIVIA QUIZ LOCALE --- -->
+    <div id="quiz-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-fadeIn">
+            
+            <div class="p-6 bg-slate-950 border-b border-slate-800/60 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="trophy" class="w-5 h-5 text-amber-400"></i>
+                    <h3 class="font-extrabold text-base sm:text-lg">Rai Sport Trivia</h3>
+                </div>
+                <button onclick="closeQuiz()" class="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <div class="flex items-center justify-between text-xs bg-slate-950 p-3 rounded-xl border border-slate-850">
+                    <span class="text-slate-400">Streak di vittorie: <strong id="quiz-streak" class="text-amber-400">0 🔥</strong></span>
+                    <span class="text-slate-400">Punteggio: <strong id="quiz-total-score" class="text-sky-400">0 🏅</strong></span>
+                </div>
+
+                <h4 id="quiz-question" class="text-base font-bold text-slate-100 leading-snug">
+                    Domanda di caricamento...
+                </h4>
+
+                <div class="space-y-2.5" id="quiz-options">
+                    <!-- Opzioni generate via JS -->
+                </div>
+
+                <div class="pt-4 border-t border-slate-850 flex justify-end gap-3">
+                    <button id="btn-submit-answer" onclick="submitAnswer()" disabled class="w-full bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl transition-all text-xs">
+                        Invia Risposta
+                    </button>
+                    <button id="btn-next-question" onclick="loadQuizQuestion()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl transition-all text-xs hidden flex items-center justify-center gap-1.5">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Prossimo Quiz
+                    </button>
+                </div>
+
+                <div id="quiz-explanation" class="p-4 bg-slate-950 border border-slate-850 rounded-xl text-xs text-slate-300 leading-relaxed hidden">
+                    <strong class="text-amber-400 block mb-1">Lo sapevi che?</strong>
+                    <span id="quiz-explanation-text">...</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- --- MODALE RICETTE E AZIONI SQUADRE --- -->
+    <div id="actions-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-fadeIn">
+            
+            <div class="p-6 bg-slate-950 border-b border-slate-800/60 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="utensils" class="w-5 h-5 text-amber-400"></i>
+                    <h3 class="font-extrabold text-base sm:text-lg" id="actions-modal-title">Info & Ricette Match</h3>
+                </div>
+                <button onclick="closeActionsModal()" class="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <div class="bg-slate-950 rounded-2xl p-5 border border-slate-850/80">
+                    <h4 class="text-xs font-bold uppercase text-amber-400 tracking-wider mb-2">🍿 Snack & Cibi della Sfida</h4>
+                    <p class="text-xs text-slate-400 mb-4">Ecco i piatti ideali da preparare ispirandoti alle due nazioni contendenti:</p>
+                    
+                    <div class="space-y-4" id="recipes-content">
+                        <!-- Generato dinamicamente via JS -->
+                    </div>
+                </div>
+
+                <div class="bg-slate-950 rounded-2xl p-5 border border-slate-850/80">
+                    <h4 class="text-xs font-bold uppercase text-sky-400 tracking-wider mb-2">ℹ️ Note e Statistiche sul Match</h4>
+                    <p class="text-xs text-slate-300 leading-relaxed" id="match-trivia-content">
+                        Caricamento info...
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 mt-16 py-8 text-center text-xs text-slate-500 space-y-2">
+        <p>© 2026 Guida TV Mondiali RAI • Ottimizzato per GitHub Pages</p>
+        <p class="text-slate-600 max-w-md mx-auto px-4">
+            Nota: I canali e gli orari delle dirette sono soggetti a possibili variazioni dei palinsesti RAI. Tutte le informazioni culinarie e di gioco sono locali e simulate offline.
+        </p>
+    </footer>
+
+    <!-- LOGICA APPLICATIVA IN JAVASCRIPT -->
+    <script>
+        // Database completo delle 35 partite trasmesse dalla RAI
+        const INITIAL_MATCHES = [
+            { id: 1, date: '2026-06-11', time: '21:00', teamHome: 'Messico', teamAway: 'Sudafrica', flagHome: '🇲🇽', flagAway: '🇿🇦', group: 'Gruppo A', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Estadio Azteca, Città del Messico', status: 'Terminata', scoreHome: 1, scoreAway: 1 },
+            { id: 2, date: '2026-06-12', time: '21:00', teamHome: 'Canada', teamAway: 'Bosnia ed Erzegovina', flagHome: '🇨🇦', flagAway: '🇧🇦', group: 'Gruppo B', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BC Place Stadium, Vancouver', status: 'Terminata', scoreHome: 2, scoreAway: 1 },
+            { id: 3, date: '2026-06-14', time: '00:00', teamHome: 'Brasile', teamAway: 'Marocco', flagHome: '🇧🇷', flagAway: '🇲🇦', group: 'Gruppo C', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'Terminata', scoreHome: 3, scoreAway: 0 },
+            { id: 4, date: '2026-06-14', time: '22:00', teamHome: 'Paesi Bassi', teamAway: 'Giappone', flagHome: '🇳🇱', flagAway: '🇯🇵', group: 'Gruppo F', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'AT&T Stadium, Dallas', status: 'Terminata', scoreHome: 2, scoreAway: 1 },
+            { id: 5, date: '2026-06-15', time: '21:00', teamHome: 'Belgio', teamAway: 'Egitto', flagHome: '🇧🇪', flagAway: '🇪🇬', group: 'Gruppo G', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle', status: 'Terminata', scoreHome: 1, scoreAway: 0 },
+            { id: 6, date: '2026-06-16', time: '21:00', teamHome: 'Francia', teamAway: 'Senegal', flagHome: '🇫🇷', flagAway: '🇸🇳', group: 'Gruppo I', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'Terminata', scoreHome: 3, scoreAway: 1 },
+            { id: 7, date: '2026-06-17', time: '22:00', teamHome: 'Inghilterra', teamAway: 'Croazia', flagHome: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', flagAway: '🇭🇷', group: 'Gruppo L', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Dallas Stadium, Arlington', status: 'Terminata', scoreHome: 4, scoreAway: 2 },
+            { id: 8, date: '2026-06-18', time: '21:00', teamHome: 'Svizzera', teamAway: 'Bosnia ed Erzegovina', flagHome: '🇨🇭', flagAway: '🇧🇦', group: 'Gruppo B', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles', status: 'Oggi' },
+            { id: 9, date: '2026-06-19', time: '21:00', teamHome: 'Stati Uniti', teamAway: 'Australia', flagHome: '🇺🇸', flagAway: '🇦🇺', group: 'Gruppo D', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle', status: 'In Arrivo' },
+            { id: 10, date: '2026-06-20', time: '22:00', teamHome: 'Germania', teamAway: 'Costa d\'Avorio', flagHome: '🇩🇪', flagAway: '🇨🇮', group: 'Gruppo E', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BMO Field, Toronto', status: 'In Arrivo' },
+            { id: 11, date: '2026-06-21', time: '21:00', teamHome: 'Belgio', teamAway: 'Iran', flagHome: '🇧🇪', flagAway: '🇮🇷', group: 'Gruppo G', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles', status: 'In Arrivo' },
+            { id: 12, date: '2026-06-22', time: '19:00', teamHome: 'Argentina', teamAway: 'Austria', flagHome: '🇦🇷', flagAway: '🇦🇹', group: 'Gruppo J', phase: 'Gironi', channel: 'Rai 2', streamUrl: 'https://www.raiplay.it/dirette/rai2', stadium: 'Hard Rock Stadium, Miami', status: 'In Arrivo' },
+            { id: 13, date: '2026-06-23', time: '22:00', teamHome: 'Spagna', teamAway: 'Ucraina', flagHome: '🇪🇸', flagAway: '🇺🇦', group: 'Gruppo H', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, New Jersey', status: 'In Arrivo' },
+            { id: 14, date: '2026-06-24', time: '21:00', teamHome: 'Portogallo', teamAway: 'Cile', flagHome: '🇵🇹', flagAway: '🇨🇱', group: 'Gruppo K', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Gillette Stadium, Boston', status: 'In Arrivo' },
+            { id: 15, date: '2026-06-25', time: '22:00', teamHome: 'Ecuador', teamAway: 'Germania', flagHome: '🇪🇨', flagAway: '🇩🇪', group: 'Gruppo E', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'In Arrivo' },
+            { id: 16, date: '2026-06-26', time: '21:00', teamHome: 'Norvegia', teamAway: 'Francia', flagHome: '🇳🇴', flagAway: '🇫🇷', group: 'Gruppo I', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Gillette Stadium, Boston', status: 'In Arrivo' },
+            { id: 17, date: '2026-06-27', time: '23:00', teamHome: 'Uruguay', teamAway: 'Corea del Sud', flagHome: '🇺🇾', flagAway: '🇰🇷', group: 'Gruppo N', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Levi\'s Stadium, San Francisco', status: 'In Arrivo' },
+            
+            // SEDICESIMI DI FINALE
+            { id: 18, date: '2026-06-28', time: '21:00', teamHome: 'Vincitrice Gruppo A', teamAway: 'Seconda Gruppo B', flagHome: '⚽', flagAway: '⚽', group: 'Gara 1', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles', status: 'In Arrivo' },
+            { id: 19, date: '2026-06-29', time: '22:30', teamHome: 'Vincitrice Gruppo E', teamAway: 'Terza Gruppo A/B/C', flagHome: '⚽', flagAway: '⚽', group: 'Gara 5', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BMO Field, Toronto', status: 'In Arrivo' },
+            { id: 20, date: '2026-06-30', time: '23:00', teamHome: 'Vincitrice Gruppo I', teamAway: 'Terza Gruppo F/G/H', flagHome: '⚽', flagAway: '⚽', group: 'Gara 9', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'AT&T Stadium, Dallas', status: 'In Arrivo' },
+            { id: 21, date: '2026-07-01', time: '21:00', teamHome: 'Vincitrice Gruppo G', teamAway: 'Seconda Gruppo H', flagHome: '⚽', flagAway: '⚽', group: 'Gara 12', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle', status: 'In Arrivo' },
+            { id: 22, date: '2026-07-02', time: '20:00', teamHome: 'Vincitrice Gruppo H', teamAway: 'Seconda Gruppo J', flagHome: '⚽', flagAway: '⚽', group: 'Gara 15', phase: 'Sedicesimi', channel: 'Rai 2', streamUrl: 'https://www.raiplay.it/dirette/rai2', stadium: 'Mercedes-Benz Stadium, Atlanta', status: 'In Arrivo' },
+            { id: 23, date: '2026-07-03', time: '23:00', teamHome: 'Vincitrice Gruppo L', teamAway: 'Seconda Gruppo K', flagHome: '⚽', flagAway: '⚽', group: 'Gara 16', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'In Arrivo' },
+
+            // OTTAVI DI FINALE
+            { id: 24, date: '2026-07-04', time: '22:00', teamHome: 'Vincitrice Gara 1', teamAway: 'Vincitrice Gara 2', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 1', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BC Place Stadium, Vancouver', status: 'In Arrivo' },
+            { id: 25, date: '2026-07-05', time: '21:00', teamHome: 'Vincitrice Gara 5', teamAway: 'Vincitrice Gara 6', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 3', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'In Arrivo' },
+            { id: 26, date: '2026-07-06', time: '22:00', teamHome: 'Vincitrice Gara 9', teamAway: 'Vincitrice Gara 10', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 5', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles', status: 'In Arrivo' },
+            { id: 27, date: '2026-07-07', time: '22:00', teamHome: 'Vincitrice Gara 12', teamAway: 'Vincitrice Gara 13', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 8', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Hard Rock Stadium, Miami', status: 'In Arrivo' },
+
+            // QUARTI DI FINALE
+            { id: 28, date: '2026-07-09', time: '22:00', teamHome: 'Vincitrice Ottavo 1', teamAway: 'Vincitrice Ottavo 2', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 1', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Gillette Stadium, Boston', status: 'In Arrivo' },
+            { id: 29, date: '2026-07-10', time: '21:00', teamHome: 'Vincitrice Ottavo 3', teamAway: 'Vincitrice Ottavo 4', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 2', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BMO Field, Toronto', status: 'In Arrivo' },
+            { id: 30, date: '2026-07-11', time: '23:00', teamHome: 'Vincitrice Ottavo 5', teamAway: 'Vincitrice Ottavo 6', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 3', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'AT&T Stadium, Dallas', status: 'In Arrivo' },
+            { id: 31, date: '2026-07-12', time: '03:00', teamHome: 'Vincitrice Ottavo 7', teamAway: 'Vincitrice Ottavo 8', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 4', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle', status: 'In Arrivo' },
+
+            // SEMIFINALI
+            { id: 32, date: '2026-07-14', time: '21:00', teamHome: 'Vincitrice Quarto 1', teamAway: 'Vincitrice Quarto 2', flagHome: '🌟', flagAway: '🌟', group: 'Semifinale 1', phase: 'Semifinali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Mercedes-Benz Stadium, Atlanta', status: 'In Arrivo' },
+            { id: 33, date: '2026-07-15', time: '21:00', teamHome: 'Vincitrice Quarto 3', teamAway: 'Vincitrice Quarto 4', flagHome: '🌟', flagAway: '🌟', group: 'Semifinale 2', phase: 'Semifinali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Hard Rock Stadium, Miami', status: 'In Arrivo' },
+
+            // FINALI
+            { id: 34, date: '2026-07-18', time: '23:00', teamHome: 'Perdente Semifinale 1', teamAway: 'Perdente Semifinale 2', flagHome: '🥉', flagAway: '🥉', group: 'Medaglia di Bronzo', phase: 'Finali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Hard Rock Stadium, Miami', status: 'In Arrivo' },
+            { id: 35, date: '2026-07-19', time: '21:00', teamHome: 'Vincitrice Semifinale 1', teamAway: 'Vincitrice Semifinale 2', flagHome: '👑', flagAway: '👑', group: 'Sogno Mondiale', phase: 'Finali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'In Arrivo' }
+        ];
+
+        const RAI_PROGRAMS = [
+            { title: "UnoMattina Mondiali", channel: "Rai 1", schedule: "Dal lunedì al venerdì alle ore 09:30", description: "Approfondimenti mattutini sulla competizione, rassegna stampa internazionale e collegamenti in diretta dagli Stati Uniti, Messico e Canada." },
+            { title: "Dribbling Mondiali", channel: "Rai 2", schedule: "Tutti i giorni alle ore 14:00", description: "Il leggendario rotocalco sportivo Rai interamente dedicato alle storie, interviste e retroscena dal mondiale americano." },
+            { title: "Notti Mondiali", channel: "Rai 1", schedule: "Tarda serata, al termine dei match live", description: "Il grande salotto condotto da Alessandro Antinelli. Sintesi approfondite, moviola e ospiti illustri per analizzare i match." }
+        ];
+
+        // Database locale delle ricette abbinate alle squadre
+        const RECIPES_DB = {
+            'Messico': { title: 'Tacos al Pastor rapidi 🌮', recipe: 'Utilizza tortilla di mais calde, carne di maiale speziata alla piastra, ananas fresco a pezzettini, cipolla tritata e coriandolo fresco. Accompagna con salsa guacamole.' },
+            'Sudafrica': { title: 'Sosaties sudafricani (Spiedini) 🍢', recipe: 'Cubetti di carne di pollo o agnello marinati in curry, marmellata di albicocche e aceto, alternati su spiedini con cipolle e albicocche secche, poi grigliati.' },
+            'Canada': { title: 'Poutine da stadio 🍟', recipe: 'Patatine fritte dorate e caldissime sormontate da formaggio fuso a cubetti e una ricca dose di salsa gravy calda di carne.' },
+            'Bosnia ed Erzegovina': { title: 'Ćevapčići Bosnia-style 🥩', recipe: 'Salsicce speziate senza pelle a base di carne macinata mista. Servile calde dentro al tipico pane piatto (somun) con cipolla cruda tritata.' },
+            'Brasile': { title: 'Pão de Queijo 🧀', recipe: 'Sfiziosi panini brasiliani al formaggio preparati con fecola di tapioca, uova, latte e formaggio grattugiato saporito. Perfetti caldi!' },
+            'Marocco': { title: 'Msemmen con Miele 🥞', recipe: 'Tipiche focacce sfogliate marocchine cotte in padella. Servile calde con burro fuso e miele d\'api per addolcire il match.' },
+            'Paesi Bassi': { title: 'Bitterballen Olandesi 🧆', recipe: 'Polpettine croccanti ripiene di un denso ragù di carne, impanate e fritte. Servile bollenti con senape forte.' },
+            'Giappone': { title: 'Yakitori Veloci 🍡', recipe: 'Spiedini di pollo laccati con una densa salsa dolce a base di soia, mirin e zucchero, grigliati alla perfezione.' },
+            'Belgio': { title: 'Gaufres / Waffle di Liegi 🧇', recipe: 'Waffle dolci e densi con granella di zucchero perlato all\'interno, serviti con cioccolato fuso belga.' },
+            'Egitto': { title: 'Taameya (Falafel Egiziani) 🧆', recipe: 'Falafel fatti con fave sgusciate anziché ceci, abbondante coriandolo, prezzemolo e spezie, fritti fino alla doratura.' },
+            'Francia': { title: 'Mini Quiche Lorraine 🥧', recipe: 'Tortine di pasta sfoglia ripiene di uova, panna liquida fresca, pancetta affumicata a dadini e formaggio groviera.' },
+            'Senegal': { title: 'Pastels Senegalesi 🥟', recipe: 'Fagottini di pasta fritti ripieni di pesce saporito speziato, serviti con una salsa piccante al pomodoro.' },
+            'Inghilterra': { title: 'Mini Fish & Chips 🐟', recipe: 'Bocconcini di merluzzo in pastella di birra croccante, serviti con patate fritte rustiche e una spruzzata di aceto di malto.' },
+            'Croazia': { title: 'Fritule Dalmate 🍩', recipe: 'Frittelle dolci croccanti aromatizzate con scorza d\'arancia, uvetta e un goccio di grappa locale, spolverate di zucchero a velo.' },
+            'Svizzera': { title: 'Mini Raclette di Patate 🥔', recipe: 'Patate lesse calde tagliate a metà e sormontate da formaggio svizzero Raclette fuso, pepe nero e cetriolini.' },
+            'Stati Uniti': { title: 'Buffalo Chicken Wings 🍗', recipe: 'Alette di pollo fritte o al forno super croccanti, passate in salsa piccante burro e accompagnate da salsa blue cheese.' },
+            'Australia': { title: 'Sausage Rolls Australiani 🌭', recipe: 'Salsiccia saporita avvolta in fragrante pasta sfoglia, spennellata d\'uovo e cotta al forno. Accompagna con salsa ketchup.' },
+            'Germania': { title: 'Pretzel con Obatzda 🥨', recipe: 'Pretzel salati accompagnati dalla tipica crema bavarese preparata con camembert schiacciato, burro, paprika e birra.' },
+            'Costa d\'Avorio': { title: 'Alloco (Platano Fritto) 🍌', recipe: 'Fette di platano maturo fritte in olio caldissimo fino a renderle dolci e caramellate, servite con salsa di peperoncino.' },
+            'Iran': { title: 'Kuku Sabzi 🍳', recipe: 'Una frittata persiana ricca di erbe fresche tritate (prezzemolo, aneto, coriandolo, erba cipollina) e noci triturate.' },
+            'Argentina': { title: 'Empanadas Criollas 🥟', recipe: 'Fagottini di pasta cotti al forno ripieni di carne bovina speziata con cumino, cipolla, olive verdi e uovo sodo.' },
+            'Austria': { title: 'Kaiserschmarrn 🥞', recipe: 'Una spessa crêpe dolce strapazzata in padella, caramellata con burro e zucchero e servita caldissima con confettura di mirtilli rossi.' },
+            'Spagna': { title: 'Patatas Bravas 🥔', recipe: 'Cubetti di patate fritti e croccanti sormontati da una salsa piccante al pomodoro affumicato (salsa brava) e maionese all\'aglio.' },
+            'Ucraina': { title: 'Deruny (Frittelle di Patate) 🥔', recipe: 'Frittelle di patate grattugiate finemente con uova e cipolla, cotte in padella e servite con panna acida fresca.' },
+            'Portogallo': { title: 'Pastéis de Bacalhau 🧆', recipe: 'Frittelle di baccalà dissalato e patate bollite, aromatizzate con prezzemolo fresco e noce moscata.' },
+            'Cile': { title: 'Sopaipillas 🥯', recipe: 'Dischetti di pasta fritta a base di zucca cotta schiacciata e farina, serviti con pebre (salsa cilena di pomodori e coriandolo).' },
+            'Ecuador': { title: 'Patacones Croccanti 🍌', recipe: 'Fette di platano verde fritte, schiacciate con un batticarne e fritte una seconda volta fino a renderle super croccanti.' },
+            'Norvegia': { title: 'Smørrebrød al Salmone 🥪', recipe: 'Pane di segale imburrato coperto con salmone affumicato norvegese, uova sode a fette, panna acida e aneto fresco.' },
+            'Corea del Sud': { title: 'Kimchi Jeon (Frittelle di Kimchi) 🥞', recipe: 'Frittelle croccanti e piccanti preparate con kimchi sminuzzato, cipollotti freschi e farina, cotte velocemente in padella.' },
+            'Uruguay': { title: 'Chivito Snack 🥪', recipe: 'Un super panino uruguaiano ripieno di fettine di filetto di manzo alla piastra, mozzarella fusa, prosciutto, pomodoro e lattuga.' }
+        };
+
+        // Statistiche o curiosità offline per ciascuna partita
+        const MATCH_TRIVIA_DB = {
+            1: "Messico e Sudafrica inaugurarono anche i Mondiali del 2010 con uno spettacolare 1-1. Questa partita segna un record assoluto: lo Stadio Azteca diventa il primo stadio al mondo ad ospitare tre partite inaugurali della Coppa del Mondo (1970, 1986, 2026).",
+            2: "Il Canada gioca in casa a Vancouver per guadagnare punti storici nel gruppo B. La Bosnia, guidata da una nuova generazione di talenti europei, affronta una trasferta intercontinentale molto ostica.",
+            3: "Brasile e Marocco si affrontano in una rivincita ad altissima tensione dopo le ultime amichevoli spettacolari. Il Marocco cerca di confermare l'incredibile livello mostrato nelle passate edizioni mondiali.",
+            8: "La Svizzera e la Bosnia si sfidano stasera al SoFi Stadium di Los Angeles in un match decisivo per il Gruppo B. Chi vince ipoteca il passaggio al turno successivo."
+        };
+
+        // Database locale per il Trivia Quiz (12 domande storiche verificate)
+        const TRIVIA_QUESTIONS = [
+            { question: "Quale nazione ha vinto il maggior numero di campionati mondiali di calcio?", options: ["Italia", "Germania", "Brasile", "Argentina"], correctAnswerIndex: 2, explanation: "Il Brasile è la nazionale più titolata al mondo con ben 5 Coppe del Mondo vinte (1958, 1962, 1970, 1994, 2002)." },
+            { question: "Chi è il miglior marcatore di sempre nella storia delle fasi finali dei Mondiali?", options: ["Pelé", "Miroslav Klose", "Ronaldo il Fenomeno", "Lionel Messi"], correctAnswerIndex: 1, explanation: "Il tedesco Miroslav Klose detiene il record con ben 16 gol totali realizzati in 4 edizioni (dal 2002 al 2014)." },
+            { question: "In quale edizione dei mondiali è stata introdotta per la prima volta la tecnologia VAR?", options: ["Brasile 2014", "Russia 2018", "Qatar 2022", "Sudafrica 2010"], correctAnswerIndex: 1, explanation: "La tecnologia VAR (Video Assistant Referee) è stata adottata ufficialmente a partire dal mondiale di Russia 2018." },
+            { question: "Quale giocatore ha vinto 3 Coppe del Mondo da calciatore?", options: ["Diego Maradona", "Pelé", "Franz Beckenbauer", "Garrincha"], correctAnswerIndex: 1, explanation: "Il leggendario Edson Arantes do Nascimento, in arte Pelé, è l'unico giocatore della storia ad aver vinto tre mondiali: 1958, 1962 e 1970." },
+            { question: "Chi ha segnato il gol della vittoria per l'Italia nella finale del Campionato Mondiale del 2006?", options: ["Fabio Grosso", "Alessandro Del Piero", "Marco Materazzi", "Francesco Totti"], correctAnswerIndex: 0, explanation: "Fabio Grosso ha segnato l'indimenticabile rigore decisivo della finale contro la Francia dopo i tempi supplementari terminati 1-1." },
+            { question: "Quale squadra africana è stata la prima a qualificarsi per una semifinale dei Mondiali?", options: ["Camerun", "Senegal", "Ghana", "Marocco"], correctAnswerIndex: 3, explanation: "Il Marocco ha fatto la storia a Qatar 2022, diventando la prima nazionale del continente africano e del mondo arabo a qualificarsi per le semifinali." },
+            { question: "In quale anno si è tenuto il primo storico Campionato Mondiale di calcio?", options: ["1930", "1934", "1950", "1928"], correctAnswerIndex: 0, explanation: "Il primo mondiale si disputò nel 1930 in Uruguay, e fu vinto proprio dalla nazionale di casa uruguaiana." },
+            { question: "Quale nazione ospiterà i Mondiali del 2026 insieme a Stati Uniti e Canada?", options: ["Brasile", "Messico", "Colombia", "Panama"], correctAnswerIndex: 1, explanation: "I Mondiali del 2026 saranno ospitati congiuntamente da tre paesi: Stati Uniti, Canada e Messico." },
+            { question: "Quale famosissimo calciatore ha segnato la 'Mano de Dios' nel 1986?", options: ["Diego Armando Maradona", "Pelé", "Zico", "Michel Platini"], correctAnswerIndex: 0, explanation: "Diego Armando Maradona segnò il celebre gol di mano contro l'Inghilterra nei quarti di finale di Messico 1986, definendolo scherzosamente segnato dalla 'Mano di Dio'." },
+            { question: "Quale portiere italiano detiene il record di imbattibilità in un singolo mondiale (517 minuti nel 1990)?", options: ["Gianluigi Buffon", "Walter Zenga", "Dino Zoff", "Gianluca Pagliuca"], correctAnswerIndex: 1, explanation: "Walter Zenga, durante i mondiali di Italia '90, mantenne la porta azzurra inviolata per ben 517 minuti consecutivi prima di subire gol da Caniggia." }
+        ];
+
+        // Stati dell'applicazione
+        let favorites = JSON.parse(localStorage.getItem('rai_worldcup_favorites_gh')) || [];
+        let notifications = JSON.parse(localStorage.getItem('rai_worldcup_notifications_gh')) || [];
+        let searchTerm = '';
+        let selectedPhase = 'Tutte';
+        let selectedChannel = 'Tutti';
+        let filterFavoritesOnly = false;
+        let filterTodayOnly = false;
+
+        // Stati del quiz
+        let quizScore = parseInt(localStorage.getItem('rai_worldcup_quiz_score_gh')) || 0;
+        let quizStreak = 0;
+        let currentQuestion = null;
+        let selectedAnswerIdx = null;
+        let quizSubmitted = false;
+
+        // Inizializzazione
+        window.onload = function() {
+            // Genera UI filtri
+            renderFilters();
+            // Genera i programmi RAI
+            renderRaiPrograms();
+            // Renderizza i match iniziali
+            renderMatches();
+            // Avvia countdown
+            startCountdown();
+            // Inizializza icone
+            lucide.createIcons();
+            // Aggiorna badge del punteggio del quiz
+            document.getElementById('quiz-badge').innerText = `Score: ${quizScore}`;
+            document.getElementById('quiz-total-score').innerText = quizScore;
+        };
+
+        // Gestione Toast personalizzati
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Countdown dinamico per la gara principale di stasera (Svizzera vs Bosnia ore 21:00)
+        function startCountdown() {
+            const targetDate = new Date('2026-06-18T21:00:00+02:00'); // fuso italiano
+            
+            function updateTimer() {
+                const now = new Date();
+                const diff = targetDate.getTime() - now.getTime();
+                
+                if (diff <= 0) {
+                    document.getElementById('countdown-timer').innerHTML = '<span class="text-green-400 font-bold uppercase animate-pulse">In Diretta Ora!</span>';
+                    return;
+                }
+                
+                const hrs = Math.floor(diff / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                document.getElementById('hours').innerText = String(hrs).padStart(2, '0');
+                document.getElementById('minutes').innerText = String(mins).padStart(2, '0');
+                document.getElementById('seconds').innerText = String(secs).padStart(2, '0');
+            }
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        // Filtri di rendering
+        function renderFilters() {
+            // Fasi del torneo
+            const phases = ['Tutte', 'Gironi', 'Sedicesimi', 'Ottavi', 'Quarti', 'Semifinali', 'Finali'];
+            const phaseContainer = document.getElementById('phase-filters-container');
+            phaseContainer.innerHTML = phases.map(phase => {
+                const count = phase === 'Tutte' ? INITIAL_MATCHES.length : INITIAL_MATCHES.filter(m => m.phase === phase).length;
+                return `
+                    <button onclick="setPhaseFilter('${phase}')" id="phase-btn-${phase}" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/40">
+                        <span>${phase}</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-950 text-slate-500">${count}</span>
+                    </button>
+                `;
+            }).join('');
+
+            // Canali
+            const channels = ['Tutti', 'Rai 1', 'Rai 2'];
+            const channelContainer = document.getElementById('channel-filters-container');
+            channelContainer.innerHTML = channels.map(chan => {
+                return `
+                    <button onclick="setChannelFilter('${chan}')" id="chan-btn-${chan}" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-400">
+                        ${chan}
+                    </button>
+                `;
+            }).join('');
+
+            updateFilterUIActiveStates();
+        }
+
+        function updateFilterUIActiveStates() {
+            // Evidenzia fase attiva
+            const phases = ['Tutte', 'Gironi', 'Sedicesimi', 'Ottavi', 'Quarti', 'Semifinali', 'Finali'];
+            phases.forEach(p => {
+                const btn = document.getElementById(`phase-btn-${p}`);
+                if (!btn) return;
+                if (selectedPhase === p) {
+                    btn.className = "w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs transition-all bg-sky-600 text-white font-bold shadow-md shadow-sky-950/35";
+                } else {
+                    btn.className = "w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/40";
+                }
+            });
+
+            // Evidenzia canale attivo
+            const channels = ['Tutti', 'Rai 1', 'Rai 2'];
+            channels.forEach(c => {
+                const btn = document.getElementById(`chan-btn-${c}`);
+                if (!btn) return;
+                if (selectedChannel === c) {
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-sky-600/20 border border-sky-500 text-sky-400";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-400";
+                }
+            });
+
+            // Scorciatoie
+            const btnToday = document.getElementById('btn-filter-today');
+            if (filterTodayOnly) {
+                btnToday.className = "w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-all bg-red-500/15 border border-red-500/40 text-red-400";
+            } else {
+                btnToday.className = "w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-all bg-slate-950 hover:bg-slate-800/50 border border-slate-800 text-slate-300";
+            }
+
+            const btnFavs = document.getElementById('btn-filter-favs');
+            if (filterFavoritesOnly) {
+                btnFavs.className = "w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-all bg-amber-500/15 border border-amber-500/40 text-amber-400";
+            } else {
+                btnFavs.className = "w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-all bg-slate-950 hover:bg-slate-800/50 border border-slate-800 text-slate-300";
+            }
+
+            document.getElementById('count-favs').innerText = favorites.length;
+        }
+
+        // Set dei filtri
+        function setPhaseFilter(phase) {
+            selectedPhase = phase;
+            updateFilterUIActiveStates();
+            renderMatches();
+        }
+
+        function setChannelFilter(channel) {
+            selectedChannel = channel;
+            updateFilterUIActiveStates();
+            renderMatches();
+        }
+
+        function toggleTodayOnly() {
+            filterTodayOnly = !filterTodayOnly;
+            updateFilterUIActiveStates();
+            renderMatches();
+        }
+
+        function toggleFavoritesOnly() {
+            filterFavoritesOnly = !filterFavoritesOnly;
+            updateFilterUIActiveStates();
+            renderMatches();
+        }
+
+        // Cerca input listener
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            searchTerm = e.target.value.toLowerCase();
+            renderMatches();
+        });
+
+        // Programmi RAI
+        function renderRaiPrograms() {
+            const container = document.getElementById('programs-container');
+            container.innerHTML = RAI_PROGRAMS.map(prog => `
+                <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-5 hover:border-slate-700 transition-all flex flex-col justify-between space-y-3">
+                    <div class="space-y-1">
+                      <div class="flex items-center justify-between gap-2">
+                        <h4 class="font-extrabold text-slate-100 text-xs sm:text-sm">${prog.title}</h4>
+                        <span class="bg-slate-900 text-sky-400 border border-sky-500/10 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          ${prog.channel}
+                        </span>
+                      </div>
+                      <p class="text-[11px] text-sky-300 font-semibold">${prog.schedule}</p>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">${prog.description}</p>
+                </div>
+            `).join('');
+        }
+
+        // Render principale dei match
+        function renderMatches() {
+            const container = document.getElementById('matches-list');
+            
+            const filtered = INITIAL_MATCHES.filter(match => {
+                const matchesSearch = match.teamHome.toLowerCase().includes(searchTerm) || 
+                                      match.teamAway.toLowerCase().includes(searchTerm) || 
+                                      match.group.toLowerCase().includes(searchTerm) || 
+                                      match.stadium.toLowerCase().includes(searchTerm);
+                const matchesPhase = selectedPhase === 'Tutte' || match.phase === selectedPhase;
+                const matchesChannel = selectedChannel === 'Tutti' || match.channel === selectedChannel;
+                const matchesFav = !filterFavoritesOnly || favorites.includes(match.id);
+                const matchesToday = !filterTodayOnly || match.status === 'Oggi';
+
+                return matchesSearch && matchesPhase && matchesChannel && matchesFav && matchesToday;
+            });
+
+            document.getElementById('results-count').innerText = `Palinsesto Partite RAI (${filtered.length} / ${INITIAL_MATCHES.length})`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center space-y-4">
+                        <div class="w-16 h-16 bg-slate-950 rounded-2xl flex items-center justify-center mx-auto border border-slate-800">
+                            <i data-lucide="calendar" class="w-8 h-8 text-slate-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-300">Nessuna partita trovata</h3>
+                            <p class="text-xs text-slate-500 mt-1">Modifica i criteri di ricerca o i filtri laterali.</p>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = filtered.map(match => {
+                const isFav = favorites.includes(match.id);
+                const isNotified = notifications.includes(match.id);
+                const isToday = match.status === 'Oggi';
+                const isFinished = match.status === 'Terminata';
+
+                return `
+                    <div class="group relative overflow-hidden bg-slate-900 border transition-all duration-300 rounded-2xl hover:shadow-xl ${
+                        isToday ? 'border-red-500/40 ring-1 ring-red-500/20 shadow-red-950/20' : isFinished ? 'border-slate-800/80 opacity-85' : 'border-slate-800 hover:border-slate-700'
+                    }">
+                        <div class="p-5 flex flex-col md:flex-row items-stretch justify-between gap-6">
+                            
+                            <!-- Sinistra: Timing e Fase -->
+                            <div class="flex flex-col justify-between space-y-3 min-w-[140px]">
+                                <div>
+                                    <span class="inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-400">
+                                      {match.phase} ${match.phase} • ${match.group}
+                                    </span>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        ${isToday ? `
+                                            <span class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
+                                              <span class="relative flex h-1.5 w-1.5">
+                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
+                                              </span>
+                                              Oggi
+                                            </span>
+                                        ` : isFinished ? `
+                                            <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                                              Conclusa
+                                            </span>
+                                        ` : `
+                                            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                                              In Arrivo
+                                            </span>
+                                        `}
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-1.5 text-slate-300 font-semibold text-sm">
+                                      <i data-lucide="calendar" class="w-3.5 h-3.5 text-sky-400"></i>
+                                      <span>${new Date(match.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })}</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 text-slate-100 font-bold text-lg">
+                                      <i data-lucide="clock" class="w-4 h-4 text-sky-400"></i>
+                                      <span>${match.time} <span class="text-xs text-slate-500 font-normal">ora ital.</span></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Centro: Tabellone Squadre -->
+                            <div class="flex-1 flex flex-col justify-center bg-slate-950/40 border border-slate-800/40 rounded-xl p-4">
+                                <div class="grid grid-cols-7 items-center justify-center gap-2 text-center">
+                                    
+                                    <!-- Casa -->
+                                    <div class="col-span-3 flex flex-col sm:flex-row items-center justify-end gap-2.5">
+                                      <span class="text-center sm:text-right font-extrabold text-slate-100 text-sm sm:text-base tracking-tight leading-tight order-2 sm:order-1">
+                                        ${match.teamHome}
+                                      </span>
+                                      <span class="text-3xl sm:text-4xl order-1 sm:order-2 filter drop-shadow">
+                                        ${match.flagHome}
+                                      </span>
+                                    </div>
+
+                                    <!-- Score o VS -->
+                                    <div class="col-span-1 flex flex-col items-center justify-center">
+                                      ${isFinished ? `
+                                        <div class="flex items-center gap-1 px-3 py-1 bg-slate-900 border border-slate-800 rounded-xl">
+                                          <span class="font-mono text-base sm:text-lg font-black text-white">${match.scoreHome}</span>
+                                          <span class="text-slate-600 font-bold">-</span>
+                                          <span class="font-mono text-base sm:text-lg font-black text-white">${match.scoreAway}</span>
+                                        </div>
+                                      ` : `
+                                        <span class="text-xs font-black text-slate-600 uppercase tracking-widest bg-slate-900 border border-slate-800 px-2 py-1 rounded-md">
+                                          VS
+                                        </span>
+                                      `}
+                                    </div>
+
+                                    <!-- Ospiti -->
+                                    <div class="col-span-3 flex flex-col sm:flex-row items-center justify-start gap-2.5">
+                                      <span class="text-3xl sm:text-4xl filter drop-shadow">
+                                        ${match.flagAway}
+                                      </span>
+                                      <span class="text-center sm:text-left font-extrabold text-slate-100 text-sm sm:text-base tracking-tight leading-tight">
+                                        ${match.teamAway}
+                                      </span>
+                                    </div>
+
+                                </div>
+
+                                <div class="mt-3.5 pt-2.5 border-t border-slate-900/85 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500">
+                                    <span class="flex items-center gap-1.5">
+                                      <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-500"></i>
+                                      ${match.stadium}
+                                    </span>
+                                </div>
+
+                                <!-- Ricette e Info Locale -->
+                                <div class="mt-3 pt-2.5 border-t border-slate-900/60 flex justify-center sm:justify-start gap-2">
+                                    <button onclick="openActionsModal(${match.id})" class="bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition-all">
+                                        <i data-lucide="utensils" class="w-3.5 h-3.5 text-amber-500"></i>
+                                        Cibi e Ricette della Sfida 🍿
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Destra: Canale TV, Bottone Diretta & Preferiti -->
+                            <div class="flex md:flex-col items-center justify-between md:justify-center gap-3 md:min-w-[140px] border-t md:border-t-0 md:border-l border-slate-800 pt-4 md:pt-0 md:pl-6">
+                                
+                                <div class="text-left md:text-center">
+                                    <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">In Chiaro su:</span>
+                                    <span class="inline-flex items-center gap-1.5 font-black text-base text-sky-400 bg-sky-500/10 border border-sky-500/20 px-3 py-1 rounded-xl mt-1">
+                                      <i data-lucide="radio" class="w-4 h-4 text-sky-400"></i>
+                                      ${match.channel}
+                                    </span>
+                                </div>
+
+                                <div class="flex items-center gap-1.5">
+                                    <!-- Stella preferito -->
+                                    <button onclick="toggleFavorite(${match.id})" class="p-2.5 rounded-xl border transition-all ${
+                                        isFav ? 'bg-amber-500/15 border-amber-500/30 text-amber-400' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-100 hover:bg-slate-800'
+                                    }">
+                                        <i data-lucide="star" class="w-4 h-4 ${isFav ? 'fill-amber-400' : ''}"></i>
+                                    </button>
+
+                                    <!-- Bell Notifica -->
+                                    ${!isFinished ? `
+                                        <button onclick="toggleNotification(${match.id})" class="p-2.5 rounded-xl border transition-all ${
+                                            isNotified ? 'bg-blue-500/15 border-blue-500/30 text-blue-400' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-100 hover:bg-slate-800'
+                                        }">
+                                            <i data-lucide="${isNotified ? 'bell' : 'bell-off'}" class="w-4 h-4"></i>
+                                        </button>
+                                    ` : ''}
+
+                                    <!-- Share -->
+                                    <button onclick="shareMatch(${match.id})" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-all">
+                                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+
+                                <a href="${match.streamUrl}" target="_blank" rel="noopener noreferrer" class="w-full text-center py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                    isFinished ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white shadow-md shadow-sky-950/20'
+                                }">
+                                    <i data-lucide="play-circle" class="w-4 h-4"></i>
+                                    <span>${isFinished ? 'Rivedi Gara' : 'Streaming RaiPlay'}</span>
+                                </a>
+
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // Toggle Preferiti
+        function toggleFavorite(id) {
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(favId => favId !== id);
+                showToast("Rimosso dai Preferiti ⭐");
+            } else {
+                favorites.push(id);
+                showToast("Aggiunto ai Preferiti! ⭐");
+            }
+            localStorage.setItem('rai_worldcup_favorites_gh', JSON.stringify(favorites));
+            updateFilterUIActiveStates();
+            renderMatches();
+        }
+
+        // Toggle Notifiche
+        function toggleNotification(id) {
+            if (notifications.includes(id)) {
+                notifications = notifications.filter(notifId => notifId !== id);
+                showToast("Promemoria disattivato 🔕");
+            } else {
+                notifications.push(id);
+                showToast("Promemoria attivato! Ti avviseremo prima del fischio d'inizio 🔔");
+            }
+            localStorage.setItem('rai_worldcup_notifications_gh', JSON.stringify(notifications));
+            renderMatches();
+        }
+
+        // Condivisione partita negli appunti (ottimizzato per iFrame e GitHub Pages)
+        function shareMatch(id) {
+            const match = INITIAL_MATCHES.find(m => m.id === id);
+            const shareText = `🏆 Guarda ${match.teamHome} vs ${match.teamAway} in chiaro su ${match.channel}! Il ${new Date(match.date).toLocaleDateString('it-IT')} alle ore ${match.time}.`;
+            
+            // Fallback robusto per copia
+            const textarea = document.createElement('textarea');
+            textarea.value = shareText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            showToast("Invito e palinsesto copiati negli appunti! Condividilo con i tuoi amici su WhatsApp 📲");
+        }
+
+        // --- SISTEMA QUIZ OFFLINE (Sostituto AI autogestito) ---
+        function openQuiz() {
+            document.getElementById('quiz-modal').classList.remove('hidden');
+            loadQuizQuestion();
+        }
+
+        function closeQuiz() {
+            document.getElementById('quiz-modal').classList.add('hidden');
+        }
+
+        function loadQuizQuestion() {
+            // Seleziona una domanda casuale dal pool
+            const randIdx = Math.floor(Math.random() * TRIVIA_QUESTIONS.length);
+            currentQuestion = TRIVIA_QUESTIONS[randIdx];
+            selectedAnswerIdx = null;
+            quizSubmitted = false;
+
+            document.getElementById('quiz-question').innerText = currentQuestion.question;
+            document.getElementById('quiz-explanation').classList.add('hidden');
+            document.getElementById('btn-submit-answer').classList.remove('hidden');
+            document.getElementById('btn-submit-answer').disabled = true;
+            document.getElementById('btn-next-question').classList.add('hidden');
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = currentQuestion.options.map((option, index) => `
+                <button onclick="selectQuizOption(${index})" id="quiz-opt-${index}" class="w-full text-left p-4 rounded-xl text-xs sm:text-sm border border-slate-800 bg-slate-950 text-slate-300 hover:bg-slate-850 transition-all flex items-center justify-between">
+                    <span>${option}</span>
+                </button>
+            `).join('');
+        }
+
+        function selectQuizOption(index) {
+            if (quizSubmitted) return;
+            selectedAnswerIdx = index;
+            
+            // Ripristina stili vecchi e applica stile selezione
+            currentQuestion.options.forEach((_, idx) => {
+                const opt = document.getElementById(`quiz-opt-${idx}`);
+                if (idx === index) {
+                    opt.className = "w-full text-left p-4 rounded-xl text-xs sm:text-sm border border-sky-500 bg-sky-600/20 text-sky-400 ring-1 ring-sky-500/20 transition-all flex items-center justify-between";
+                } else {
+                    opt.className = "w-full text-left p-4 rounded-xl text-xs sm:text-sm border border-slate-800 bg-slate-950 text-slate-300 hover:bg-slate-850 transition-all flex items-center justify-between";
+                }
+            });
+
+            document.getElementById('btn-submit-answer').disabled = false;
+        }
+
+        function submitAnswer() {
+            if (selectedAnswerIdx === null || quizSubmitted) return;
+            quizSubmitted = true;
+
+            const correctIdx = currentQuestion.correctAnswerIndex;
+
+            // Aggiorna grafica opzioni
+            currentQuestion.options.forEach((_, idx) => {
+                const opt = document.getElementById(`quiz-opt-${idx}`);
+                if (idx === correctIdx) {
+                    opt.className = "w-full text-left p-4 rounded-xl text-xs sm:text-sm border border-emerald-500 bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/20 font-bold transition-all flex items-center justify-between";
+                    opt.innerHTML += '<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0 ml-2"></i>';
+                } else if (idx === selectedAnswerIdx) {
+                    opt.className = "w-full text-left p-4 rounded-xl text-xs sm:text-sm border border-red-500 bg-red-500/20 text-red-400 ring-1 ring-red-500/20 transition-all flex items-center justify-between";
+                } else {
+                    opt.className = "w-full text-left p-4 rounded-xl text-xs sm:text-sm border border-slate-900 bg-slate-950/40 text-slate-600 pointer-events-none transition-all flex items-center justify-between";
+                }
+            });
+
+            // Calcola punteggio
+            if (selectedAnswerIdx === correctIdx) {
+                quizScore += 10;
+                quizStreak += 1;
+                showToast("Esatto! +10 Punti! 🎉");
+            } else {
+                quizStreak = 0;
+                showToast("Risposta errata, riprova con la prossima! ❌");
+            }
+
+            // Salva e aggiorna UI
+            localStorage.setItem('rai_worldcup_quiz_score_gh', quizScore);
+            document.getElementById('quiz-badge').innerText = `Score: ${quizScore}`;
+            document.getElementById('quiz-total-score').innerText = quizScore;
+            document.getElementById('quiz-streak').innerText = `${quizStreak} 🔥`;
+
+            // Mostra spiegazione storica
+            document.getElementById('quiz-explanation-text').innerText = currentQuestion.explanation;
+            document.getElementById('quiz-explanation').classList.remove('hidden');
+
+            document.getElementById('btn-submit-answer').classList.add('hidden');
+            document.getElementById('btn-next-question').classList.remove('hidden');
+
+            lucide.createIcons();
+        }
+
+        // --- APRI MODALE RICETTE & INFO GARA ---
+        function openActionsModal(matchId) {
+            const match = INITIAL_MATCHES.find(m => m.id === matchId);
+            if (!match) return;
+
+            document.getElementById('actions-modal-title').innerText = `${match.teamHome} vs ${match.teamAway}`;
+            
+            // Genera ricette
+            const recipeHome = RECIPES_DB[match.teamHome] || { title: `Ricetta di ${match.teamHome} 🍲`, recipe: 'Focaccia dorata salata con erbe aromatiche del posto, perfetta per seguire il match.' };
+            const recipeAway = RECIPES_DB[match.teamAway] || { title: `Ricetta di ${match.teamAway} 🍲`, recipe: 'Spuntino sfizioso con formaggio locale e salse d\'accompagnamento tradizionali.' };
+
+            document.getElementById('recipes-content').innerHTML = `
+                <div class="space-y-2 border-l-2 border-amber-500 pl-3">
+                    <h5 class="font-bold text-slate-100 text-xs">${recipeHome.title}</h5>
+                    <p class="text-xs text-slate-300">${recipeHome.recipe}</p>
+                </div>
+                <div class="space-y-2 border-l-2 border-amber-500 pl-3 pt-3">
+                    <h5 class="font-bold text-slate-100 text-xs">${recipeAway.title}</h5>
+                    <p class="text-xs text-slate-300">${recipeAway.recipe}</p>
+                </div>
+            `;
+
+            // Genera note e curiosità storiche
+            const trivia = MATCH_TRIVIA_DB[match.id] || `Questo scontro tra ${match.teamHome} e ${match.teamAway} promette scintille. Le due squadre vantano una solida tradizione calcistica e si sfideranno per strappare un posto d'oro per la qualificazione ai sedicesimi di finale dei Mondiali 2026.`;
+            document.getElementById('match-trivia-content').innerText = trivia;
+
+            document.getElementById('actions-modal').classList.remove('hidden');
+        }
+
+        function closeActionsModal() {
+            document.getElementById('actions-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
