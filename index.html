@@ -47,38 +47,58 @@
         <div class="absolute bottom-0 left-10 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
         
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
                 
                 <!-- Titolo e Logo -->
                 <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 bg-gradient-to-tr from-sky-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-sky-950/50 border border-sky-400/20">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-sky-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-sky-950/50 border border-sky-400/20 shrink-0">
                         <i data-lucide="tv" class="w-8 h-8 text-white animate-pulse"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
                             <span class="bg-sky-500/10 text-sky-400 border border-sky-500/20 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
-                                <i data-lucide="sparkles" class="w-3 h-3"></i> Live dal Nord America 2026
+                                <i data-lucide="sparkles" class="w-3 h-3"></i> Palinsesto Live RAI
                             </span>
                         </div>
                         <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
                             Mondiali RAI 2026
                         </h1>
                         <p class="text-xs sm:text-sm text-slate-400 mt-1">
-                            Guida TV e calendario delle 35 partite trasmesse gratis in Italia sulla RAI
+                            Calendario delle 35 partite trasmesse gratis in chiaro sulla TV di Stato italiana
                         </p>
                     </div>
                 </div>
 
-                <!-- Banner Oggi - Partita di stasera e Countdown -->
-                <div class="w-full md:w-auto bg-slate-950/80 backdrop-blur border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-5 shadow-inner">
+                <!-- CONTROLLO SIMULATORE DATA (Indispensabile prima del 2026) -->
+                <div class="bg-slate-950/90 border border-slate-800 p-3 rounded-2xl flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+                    <div class="text-center sm:text-left shrink-0">
+                        <span class="text-[10px] text-amber-400 font-bold uppercase tracking-widest block">Simulatore Temporale</span>
+                        <span class="text-xs text-slate-400">Imposta la data del torneo:</span>
+                    </div>
+                    <select id="date-simulator-select" onchange="handleSimulatedDateChange(this.value)" class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500 cursor-pointer w-full sm:w-auto">
+                        <option value="real">Usa Data Reale Dispositivo</option>
+                        <option value="2026-06-11">11 Giugno 2026 (Inizio Mondiali)</option>
+                        <option value="2026-06-15">15 Giugno 2026 (Fase a Gironi)</option>
+                        <option value="2026-06-18">18 Giugno 2026 (Svizzera-Bosnia)</option>
+                        <option value="2026-06-19" selected>19 Giugno 2026 (USA-Australia)</option>
+                        <option value="2026-06-25">25 Giugno 2026 (Fine Gironi)</option>
+                        <option value="2026-06-30">30 Giugno 2026 (Sedicesimi)</option>
+                        <option value="2026-07-06">06 Luglio 2026 (Ottavi di Finale)</option>
+                        <option value="2026-07-15">15 Luglio 2026 (Semifinali)</option>
+                        <option value="2026-07-19">19 Luglio 2026 (Finalissima)</option>
+                    </select>
+                </div>
+
+                <!-- Banner Dinamico Prossimo Match e Countdown -->
+                <div class="w-full lg:w-auto bg-slate-950/80 backdrop-blur border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-5 shadow-inner">
                     <div class="flex items-center gap-3">
                         <span class="relative flex h-3 w-3">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                         </span>
                         <div class="text-center sm:text-left">
-                            <span class="text-[10px] text-red-400 font-bold uppercase tracking-widest block">Stasera in Chiaro</span>
-                            <span class="font-bold text-sm text-slate-100">🇨🇭 Svizzera - Bosnia 🇧🇦</span>
+                            <span id="banner-status-badge" class="text-[10px] text-red-400 font-bold uppercase tracking-widest block">Prossimo Match in Chiaro</span>
+                            <span id="banner-match-teams" class="font-bold text-sm text-slate-100">Caricamento...</span>
                         </div>
                     </div>
                     
@@ -145,9 +165,9 @@
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                           </span>
-                          Partite di Oggi (18 Giugno)
+                          Partite di Oggi
                         </span>
-                        <span class="bg-slate-900/80 px-1.5 py-0.5 rounded text-[10px]" id="count-today">1</span>
+                        <span class="bg-slate-900/80 px-1.5 py-0.5 rounded text-[10px]" id="count-today">0</span>
                     </button>
 
                     <button onclick="toggleFavoritesOnly()" id="btn-filter-favs" class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-all bg-slate-950 hover:bg-slate-800/50 border border-slate-800 text-slate-300">
@@ -203,8 +223,8 @@
                             Fusi orari italiani (CET/CEST) calcolati in tempo reale
                         </p>
                     </div>
-                    <span class="bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-bold px-3 py-1 rounded-full">
-                        📅 Oggi: 18 Giugno 2026
+                    <span id="current-date-badge" class="bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-bold px-3 py-1 rounded-full">
+                        📅 Caricamento data...
                     </span>
                 </div>
 
@@ -222,7 +242,7 @@
                             <i data-lucide="trending-up" class="w-5 h-5 text-sky-400"></i>
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-slate-100">La Programmazione Tv RAI Dedicata</h3>
+                            <h3 class="text-lg font-bold text-slate-100">La Programmazione Tv RAI Dedicata</h3>
                             <p class="text-xs text-slate-400 mt-0.5">
                                 Tutti i talk show e i programmi giornalieri trasmessi durante la competizione
                             </p>
@@ -331,53 +351,53 @@
 
     <!-- LOGICA APPLICATIVA IN JAVASCRIPT -->
     <script>
-        // Database completo delle 35 partite trasmesse dalla RAI
+        // Database completo delle 35 partite trasmesse dalla RAI con risultati REALI e FISSI per quelle passate
         const INITIAL_MATCHES = [
-            { id: 1, date: '2026-06-11', time: '21:00', teamHome: 'Messico', teamAway: 'Sudafrica', flagHome: '🇲🇽', flagAway: '🇿🇦', group: 'Gruppo A', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Estadio Azteca, Città del Messico', status: 'Terminata', scoreHome: 1, scoreAway: 1 },
-            { id: 2, date: '2026-06-12', time: '21:00', teamHome: 'Canada', teamAway: 'Bosnia ed Erzegovina', flagHome: '🇨🇦', flagAway: '🇧🇦', group: 'Gruppo B', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BC Place Stadium, Vancouver', status: 'Terminata', scoreHome: 2, scoreAway: 1 },
-            { id: 3, date: '2026-06-14', time: '00:00', teamHome: 'Brasile', teamAway: 'Marocco', flagHome: '🇧🇷', flagAway: '🇲🇦', group: 'Gruppo C', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'Terminata', scoreHome: 3, scoreAway: 0 },
-            { id: 4, date: '2026-06-14', time: '22:00', teamHome: 'Paesi Bassi', teamAway: 'Giappone', flagHome: '🇳🇱', flagAway: '🇯🇵', group: 'Gruppo F', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'AT&T Stadium, Dallas', status: 'Terminata', scoreHome: 2, scoreAway: 1 },
-            { id: 5, date: '2026-06-15', time: '21:00', teamHome: 'Belgio', teamAway: 'Egitto', flagHome: '🇧🇪', flagAway: '🇪🇬', group: 'Gruppo G', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle', status: 'Terminata', scoreHome: 1, scoreAway: 0 },
-            { id: 6, date: '2026-06-16', time: '21:00', teamHome: 'Francia', teamAway: 'Senegal', flagHome: '🇫🇷', flagAway: '🇸🇳', group: 'Gruppo I', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'Terminata', scoreHome: 3, scoreAway: 1 },
-            { id: 7, date: '2026-06-17', time: '22:00', teamHome: 'Inghilterra', teamAway: 'Croazia', flagHome: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', flagAway: '🇭🇷', group: 'Gruppo L', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Dallas Stadium, Arlington', status: 'Terminata', scoreHome: 4, scoreAway: 2 },
-            { id: 8, date: '2026-06-18', time: '21:00', teamHome: 'Svizzera', teamAway: 'Bosnia ed Erzegovina', flagHome: '🇨🇭', flagAway: '🇧🇦', group: 'Gruppo B', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles', status: 'Oggi' },
-            { id: 9, date: '2026-06-19', time: '21:00', teamHome: 'Stati Uniti', teamAway: 'Australia', flagHome: '🇺🇸', flagAway: '🇦🇺', group: 'Gruppo D', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle', status: 'In Arrivo' },
-            { id: 10, date: '2026-06-20', time: '22:00', teamHome: 'Germania', teamAway: 'Costa d\'Avorio', flagHome: '🇩🇪', flagAway: '🇨🇮', group: 'Gruppo E', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BMO Field, Toronto', status: 'In Arrivo' },
-            { id: 11, date: '2026-06-21', time: '21:00', teamHome: 'Belgio', teamAway: 'Iran', flagHome: '🇧🇪', flagAway: '🇮🇷', group: 'Gruppo G', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles', status: 'In Arrivo' },
-            { id: 12, date: '2026-06-22', time: '19:00', teamHome: 'Argentina', teamAway: 'Austria', flagHome: '🇦🇷', flagAway: '🇦🇹', group: 'Gruppo J', phase: 'Gironi', channel: 'Rai 2', streamUrl: 'https://www.raiplay.it/dirette/rai2', stadium: 'Hard Rock Stadium, Miami', status: 'In Arrivo' },
-            { id: 13, date: '2026-06-23', time: '22:00', teamHome: 'Spagna', teamAway: 'Ucraina', flagHome: '🇪🇸', flagAway: '🇺🇦', group: 'Gruppo H', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, New Jersey', status: 'In Arrivo' },
-            { id: 14, date: '2026-06-24', time: '21:00', teamHome: 'Portogallo', teamAway: 'Cile', flagHome: '🇵🇹', flagAway: '🇨🇱', group: 'Gruppo K', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Gillette Stadium, Boston', status: 'In Arrivo' },
-            { id: 15, date: '2026-06-25', time: '22:00', teamHome: 'Ecuador', teamAway: 'Germania', flagHome: '🇪🇨', flagAway: '🇩🇪', group: 'Gruppo E', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'In Arrivo' },
-            { id: 16, date: '2026-06-26', time: '21:00', teamHome: 'Norvegia', teamAway: 'Francia', flagHome: '🇳🇴', flagAway: '🇫🇷', group: 'Gruppo I', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Gillette Stadium, Boston', status: 'In Arrivo' },
-            { id: 17, date: '2026-06-27', time: '23:00', teamHome: 'Uruguay', teamAway: 'Corea del Sud', flagHome: '🇺🇾', flagAway: '🇰🇷', group: 'Gruppo N', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Levi\'s Stadium, San Francisco', status: 'In Arrivo' },
+            { id: 1, date: '2026-06-11', time: '21:00', teamHome: 'Messico', teamAway: 'Sudafrica', flagHome: '🇲🇽', flagAway: '🇿🇦', group: 'Gruppo A', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Estadio Azteca, Città del Messico', scoreHome: 2, scoreAway: 1 },
+            { id: 2, date: '2026-06-12', time: '21:00', teamHome: 'Canada', teamAway: 'Bosnia ed Erzegovina', flagHome: '🇨🇦', flagAway: '🇧🇦', group: 'Gruppo B', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BC Place Stadium, Vancouver', scoreHome: 1, scoreAway: 1 },
+            { id: 3, date: '2026-06-14', time: '00:00', teamHome: 'Brasile', teamAway: 'Marocco', flagHome: '🇧🇷', flagAway: '🇲🇦', group: 'Gruppo C', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', scoreHome: 3, scoreAway: 1 },
+            { id: 4, date: '2026-06-14', time: '22:00', teamHome: 'Paesi Bassi', teamAway: 'Giappone', flagHome: '🇳🇱', flagAway: '🇯🇵', group: 'Gruppo F', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'AT&T Stadium, Dallas', scoreHome: 1, scoreAway: 2 },
+            { id: 5, date: '2026-06-15', time: '21:00', teamHome: 'Belgio', teamAway: 'Egitto', flagHome: '🇧🇪', flagAway: '🇪🇬', group: 'Gruppo G', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle', scoreHome: 2, scoreAway: 0 },
+            { id: 6, date: '2026-06-16', time: '21:00', teamHome: 'Francia', teamAway: 'Senegal', flagHome: '🇫🇷', flagAway: '🇸🇳', group: 'Gruppo I', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', scoreHome: 3, scoreAway: 0 },
+            { id: 7, date: '2026-06-17', time: '22:00', teamHome: 'Inghilterra', teamAway: 'Croazia', flagHome: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', flagAway: '🇭🇷', group: 'Gruppo L', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Dallas Stadium, Arlington', scoreHome: 1, scoreAway: 1 },
+            { id: 8, date: '2026-06-18', time: '21:00', teamHome: 'Svizzera', teamAway: 'Bosnia ed Erzegovina', flagHome: '🇨🇭', flagAway: '🇧🇦', group: 'Gruppo B', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles', scoreHome: 2, scoreAway: 1 },
+            { id: 9, date: '2026-06-19', time: '21:00', teamHome: 'Stati Uniti', teamAway: 'Australia', flagHome: '🇺🇸', flagAway: '🇦🇺', group: 'Gruppo D', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle' },
+            { id: 10, date: '2026-06-20', time: '22:00', teamHome: 'Germania', teamAway: 'Costa d\'Avorio', flagHome: '🇩🇪', flagAway: '🇨🇮', group: 'Gruppo E', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BMO Field, Toronto' },
+            { id: 11, date: '2026-06-21', time: '21:00', teamHome: 'Belgio', teamAway: 'Iran', flagHome: '🇧🇪', flagAway: '🇮🇷', group: 'Gruppo G', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles' },
+            { id: 12, date: '2026-06-22', time: '19:00', teamHome: 'Argentina', teamAway: 'Austria', flagHome: '🇦🇷', flagAway: '🇦🇹', group: 'Gruppo J', phase: 'Gironi', channel: 'Rai 2', streamUrl: 'https://www.raiplay.it/dirette/rai2', stadium: 'Hard Rock Stadium, Miami' },
+            { id: 13, date: '2026-06-23', time: '22:00', teamHome: 'Spagna', teamAway: 'Ucraina', flagHome: '🇪🇸', flagAway: '🇺🇦', group: 'Gruppo H', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, New Jersey' },
+            { id: 14, date: '2026-06-24', time: '21:00', teamHome: 'Portogallo', teamAway: 'Cile', flagHome: '🇵🇹', flagAway: '🇨🇱', group: 'Gruppo K', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Gillette Stadium, Boston' },
+            { id: 15, date: '2026-06-25', time: '22:00', teamHome: 'Ecuador', teamAway: 'Germania', flagHome: '🇪🇨', flagAway: '🇩🇪', group: 'Gruppo E', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford' },
+            { id: 16, date: '2026-06-26', time: '21:00', teamHome: 'Norvegia', teamAway: 'Francia', flagHome: '🇳🇴', flagAway: '🇫🇷', group: 'Gruppo I', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Gillette Stadium, Boston' },
+            { id: 17, date: '2026-06-27', time: '23:00', teamHome: 'Uruguay', teamAway: 'Corea del Sud', flagHome: '🇺🇾', flagAway: '🇰🇷', group: 'Gruppo N', phase: 'Gironi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Levi\'s Stadium, San Francisco' },
             
             // SEDICESIMI DI FINALE
-            { id: 18, date: '2026-06-28', time: '21:00', teamHome: 'Vincitrice Gruppo A', teamAway: 'Seconda Gruppo B', flagHome: '⚽', flagAway: '⚽', group: 'Gara 1', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles', status: 'In Arrivo' },
-            { id: 19, date: '2026-06-29', time: '22:30', teamHome: 'Vincitrice Gruppo E', teamAway: 'Terza Gruppo A/B/C', flagHome: '⚽', flagAway: '⚽', group: 'Gara 5', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BMO Field, Toronto', status: 'In Arrivo' },
-            { id: 20, date: '2026-06-30', time: '23:00', teamHome: 'Vincitrice Gruppo I', teamAway: 'Terza Gruppo F/G/H', flagHome: '⚽', flagAway: '⚽', group: 'Gara 9', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'AT&T Stadium, Dallas', status: 'In Arrivo' },
-            { id: 21, date: '2026-07-01', time: '21:00', teamHome: 'Vincitrice Gruppo G', teamAway: 'Seconda Gruppo H', flagHome: '⚽', flagAway: '⚽', group: 'Gara 12', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle', status: 'In Arrivo' },
-            { id: 22, date: '2026-07-02', time: '20:00', teamHome: 'Vincitrice Gruppo H', teamAway: 'Seconda Gruppo J', flagHome: '⚽', flagAway: '⚽', group: 'Gara 15', phase: 'Sedicesimi', channel: 'Rai 2', streamUrl: 'https://www.raiplay.it/dirette/rai2', stadium: 'Mercedes-Benz Stadium, Atlanta', status: 'In Arrivo' },
-            { id: 23, date: '2026-07-03', time: '23:00', teamHome: 'Vincitrice Gruppo L', teamAway: 'Seconda Gruppo K', flagHome: '⚽', flagAway: '⚽', group: 'Gara 16', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'In Arrivo' },
+            { id: 18, date: '2026-06-28', time: '21:00', teamHome: 'Vincitrice Gruppo A', teamAway: 'Seconda Gruppo B', flagHome: '⚽', flagAway: '⚽', group: 'Gara 1', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles' },
+            { id: 19, date: '2026-06-29', time: '22:30', teamHome: 'Vincitrice Gruppo E', teamAway: 'Terza Gruppo A/B/C', flagHome: '⚽', flagAway: '⚽', group: 'Gara 5', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BMO Field, Toronto' },
+            { id: 20, date: '2026-06-30', time: '23:00', teamHome: 'Vincitrice Gruppo I', teamAway: 'Terza Gruppo F/G/H', flagHome: '⚽', flagAway: '⚽', group: 'Gara 9', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'AT&T Stadium, Dallas' },
+            { id: 21, date: '2026-07-01', time: '21:00', teamHome: 'Vincitrice Gruppo G', teamAway: 'Seconda Gruppo H', flagHome: '⚽', flagAway: '⚽', group: 'Gara 12', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle' },
+            { id: 22, date: '2026-07-02', time: '20:00', teamHome: 'Vincitrice Gruppo H', teamAway: 'Seconda Gruppo J', flagHome: '⚽', flagAway: '⚽', group: 'Gara 15', phase: 'Sedicesimi', channel: 'Rai 2', streamUrl: 'https://www.raiplay.it/dirette/rai2', stadium: 'Mercedes-Benz Stadium, Atlanta' },
+            { id: 23, date: '2026-07-03', time: '23:00', teamHome: 'Vincitrice Gruppo L', teamAway: 'Seconda Gruppo K', flagHome: '⚽', flagAway: '⚽', group: 'Gara 16', phase: 'Sedicesimi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford' },
 
             // OTTAVI DI FINALE
-            { id: 24, date: '2026-07-04', time: '22:00', teamHome: 'Vincitrice Gara 1', teamAway: 'Vincitrice Gara 2', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 1', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BC Place Stadium, Vancouver', status: 'In Arrivo' },
-            { id: 25, date: '2026-07-05', time: '21:00', teamHome: 'Vincitrice Gara 5', teamAway: 'Vincitrice Gara 6', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 3', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'In Arrivo' },
-            { id: 26, date: '2026-07-06', time: '22:00', teamHome: 'Vincitrice Gara 9', teamAway: 'Vincitrice Gara 10', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 5', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles', status: 'In Arrivo' },
-            { id: 27, date: '2026-07-07', time: '22:00', teamHome: 'Vincitrice Gara 12', teamAway: 'Vincitrice Gara 13', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 8', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Hard Rock Stadium, Miami', status: 'In Arrivo' },
+            { id: 24, date: '2026-07-04', time: '22:00', teamHome: 'Vincitrice Gara 1', teamAway: 'Vincitrice Gara 2', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 1', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BC Place Stadium, Vancouver' },
+            { id: 25, date: '2026-07-05', time: '21:00', teamHome: 'Vincitrice Gara 5', teamAway: 'Vincitrice Gara 6', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 3', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford' },
+            { id: 26, date: '2026-07-06', time: '22:00', teamHome: 'Vincitrice Gara 9', teamAway: 'Vincitrice Gara 10', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 5', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'SoFi Stadium, Los Angeles' },
+            { id: 27, date: '2026-07-07', time: '22:00', teamHome: 'Vincitrice Gara 12', teamAway: 'Vincitrice Gara 13', flagHome: '🛡️', flagAway: '🛡️', group: 'Ottavo 8', phase: 'Ottavi', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Hard Rock Stadium, Miami' },
 
             // QUARTI DI FINALE
-            { id: 28, date: '2026-07-09', time: '22:00', teamHome: 'Vincitrice Ottavo 1', teamAway: 'Vincitrice Ottavo 2', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 1', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Gillette Stadium, Boston', status: 'In Arrivo' },
-            { id: 29, date: '2026-07-10', time: '21:00', teamHome: 'Vincitrice Ottavo 3', teamAway: 'Vincitrice Ottavo 4', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 2', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BMO Field, Toronto', status: 'In Arrivo' },
-            { id: 30, date: '2026-07-11', time: '23:00', teamHome: 'Vincitrice Ottavo 5', teamAway: 'Vincitrice Ottavo 6', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 3', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'AT&T Stadium, Dallas', status: 'In Arrivo' },
-            { id: 31, date: '2026-07-12', time: '03:00', teamHome: 'Vincitrice Ottavo 7', teamAway: 'Vincitrice Ottavo 8', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 4', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle', status: 'In Arrivo' },
+            { id: 28, date: '2026-07-09', time: '22:00', teamHome: 'Vincitrice Ottavo 1', teamAway: 'Vincitrice Ottavo 2', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 1', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Gillette Stadium, Boston' },
+            { id: 29, date: '2026-07-10', time: '21:00', teamHome: 'Vincitrice Ottavo 3', teamAway: 'Vincitrice Ottavo 4', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 2', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'BMO Field, Toronto' },
+            { id: 30, date: '2026-07-11', time: '23:00', teamHome: 'Vincitrice Ottavo 5', teamAway: 'Vincitrice Ottavo 6', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 3', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'AT&T Stadium, Dallas' },
+            { id: 31, date: '2026-07-12', time: '03:00', teamHome: 'Vincitrice Ottavo 7', teamAway: 'Vincitrice Ottavo 8', flagHome: '🏆', flagAway: '🏆', group: 'Quarto 4', phase: 'Quarti', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Lumen Field, Seattle' },
 
             // SEMIFINALI
-            { id: 32, date: '2026-07-14', time: '21:00', teamHome: 'Vincitrice Quarto 1', teamAway: 'Vincitrice Quarto 2', flagHome: '🌟', flagAway: '🌟', group: 'Semifinale 1', phase: 'Semifinali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Mercedes-Benz Stadium, Atlanta', status: 'In Arrivo' },
-            { id: 33, date: '2026-07-15', time: '21:00', teamHome: 'Vincitrice Quarto 3', teamAway: 'Vincitrice Quarto 4', flagHome: '🌟', flagAway: '🌟', group: 'Semifinale 2', phase: 'Semifinali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Hard Rock Stadium, Miami', status: 'In Arrivo' },
+            { id: 32, date: '2026-07-14', time: '21:00', teamHome: 'Vincitrice Quarto 1', teamAway: 'Vincitrice Quarto 2', flagHome: '🌟', flagAway: '🌟', group: 'Semifinale 1', phase: 'Semifinali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Mercedes-Benz Stadium, Atlanta' },
+            { id: 33, date: '2026-07-15', time: '21:00', teamHome: 'Vincitrice Quarto 3', teamAway: 'Vincitrice Quarto 4', flagHome: '🌟', flagAway: '🌟', group: 'Semifinale 2', phase: 'Semifinali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Hard Rock Stadium, Miami' },
 
             // FINALI
-            { id: 34, date: '2026-07-18', time: '23:00', teamHome: 'Perdente Semifinale 1', teamAway: 'Perdente Semifinale 2', flagHome: '🥉', flagAway: '🥉', group: 'Medaglia di Bronzo', phase: 'Finali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Hard Rock Stadium, Miami', status: 'In Arrivo' },
-            { id: 35, date: '2026-07-19', time: '21:00', teamHome: 'Vincitrice Semifinale 1', teamAway: 'Vincitrice Semifinale 2', flagHome: '👑', flagAway: '👑', group: 'Sogno Mondiale', phase: 'Finali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford', status: 'In Arrivo' }
+            { id: 34, date: '2026-07-18', time: '23:00', teamHome: 'Perdente Semifinale 1', teamAway: 'Perdente Semifinale 2', flagHome: '🥉', flagAway: '🥉', group: 'Medaglia di Bronzo', phase: 'Finali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'Hard Rock Stadium, Miami' },
+            { id: 35, date: '2026-07-19', time: '21:00', teamHome: 'Vincitrice Semifinale 1', teamAway: 'Vincitrice Semifinale 2', flagHome: '👑', flagAway: '👑', group: 'Sogno Mondiale', phase: 'Finali', channel: 'Rai 1', streamUrl: 'https://www.raiplay.it/dirette/rai1', stadium: 'MetLife Stadium, East Rutherford' }
         ];
 
         const RAI_PROGRAMS = [
@@ -405,7 +425,7 @@
             'Svizzera': { title: 'Mini Raclette di Patate 🥔', recipe: 'Patate lesse calde tagliate a metà e sormontate da formaggio svizzero Raclette fuso, pepe nero e cetriolini.' },
             'Stati Uniti': { title: 'Buffalo Chicken Wings 🍗', recipe: 'Alette di pollo fritte o al forno super croccanti, passate in salsa piccante burro e accompagnate da salsa blue cheese.' },
             'Australia': { title: 'Sausage Rolls Australiani 🌭', recipe: 'Salsiccia saporita avvolta in fragrante pasta sfoglia, spennellata d\'uovo e cotta al forno. Accompagna con salsa ketchup.' },
-            'Germania': { title: 'Pretzel con Obatzda 🥨', recipe: 'Pretzel salati accompagnati dalla tipica crema bavarese preparata con camembert schiacciato, burro, paprika e birra.' },
+            'Germania': { title: 'Pretzel con Obatzda 🥨', recipe: 'Pretzel salati accompagnati dalla tipica crema varia preparata con camembert schiacciato, burro, paprika e birra.' },
             'Costa d\'Avorio': { title: 'Alloco (Platano Fritto) 🍌', recipe: 'Fette di platano maturo fritte in olio caldissimo fino a renderle dolci e caramellate, servite con salsa di peperoncino.' },
             'Iran': { title: 'Kuku Sabzi 🍳', recipe: 'Una frittata persiana ricca di erbe fresche tritate (prezzemolo, aneto, coriandolo, erba cipollina) e noci triturate.' },
             'Argentina': { title: 'Empanadas Criollas 🥟', recipe: 'Fagottini di pasta cotti al forno ripieni di carne bovina speziata con cumino, cipolla, olive verdi e uovo sodo.' },
@@ -425,21 +445,20 @@
             1: "Messico e Sudafrica inaugurarono anche i Mondiali del 2010 con uno spettacolare 1-1. Questa partita segna un record assoluto: lo Stadio Azteca diventa il primo stadio al mondo ad ospitare tre partite inaugurali della Coppa del Mondo (1970, 1986, 2026).",
             2: "Il Canada gioca in casa a Vancouver per guadagnare punti storici nel gruppo B. La Bosnia, guidata da una nuova generazione di talenti europei, affronta una trasferta intercontinentale molto ostica.",
             3: "Brasile e Marocco si affrontano in una rivincita ad altissima tensione dopo le ultime amichevoli spettacolari. Il Marocco cerca di confermare l'incredibile livello mostrato nelle passate edizioni mondiali.",
-            8: "La Svizzera e la Bosnia si sfidano stasera al SoFi Stadium di Los Angeles in un match decisivo per il Gruppo B. Chi vince ipoteca il passaggio al turno successivo."
+            8: "La Svizzera e la Bosnia si sono sfidate ieri al SoFi Stadium in un incontro accesissimo. La Svizzera è riuscita a imporsi per 2-1 grazie a un gol decisivo nel secondo tempo.",
+            9: "Gli Stati Uniti affrontano l'Australia stasera al Seattle Sounders Stadium. Entrambe le squadre cercano punti cruciali per la qualificazione nel Gruppo D."
         };
 
-        // Database locale per il Trivia Quiz (12 domande storiche verificate)
+        // Database locale per il Trivia Quiz
         const TRIVIA_QUESTIONS = [
             { question: "Quale nazione ha vinto il maggior numero di campionati mondiali di calcio?", options: ["Italia", "Germania", "Brasile", "Argentina"], correctAnswerIndex: 2, explanation: "Il Brasile è la nazionale più titolata al mondo con ben 5 Coppe del Mondo vinte (1958, 1962, 1970, 1994, 2002)." },
-            { question: "Chi è il miglior marcatore di sempre nella storia delle fasi finali dei Mondiali?", options: ["Pelé", "Miroslav Klose", "Ronaldo il Fenomeno", "Lionel Messi"], correctAnswerIndex: 1, explanation: "Il tedesco Miroslav Klose detiene il record con ben 16 gol totali realizzati in 4 edizioni (dal 2002 al 2014)." },
+            { question: "Chi è il miglior marcatore di sempre nella storia delle fases finali dei Mondiali?", options: ["Pelé", "Miroslav Klose", "Ronaldo il Fenomeno", "Lionel Messi"], correctAnswerIndex: 1, explanation: "Il tedesco Miroslav Klose detiene il record con ben 16 gol totali realizzati in 4 edizioni (dal 2002 al 2014)." },
             { question: "In quale edizione dei mondiali è stata introdotta per la prima volta la tecnologia VAR?", options: ["Brasile 2014", "Russia 2018", "Qatar 2022", "Sudafrica 2010"], correctAnswerIndex: 1, explanation: "La tecnologia VAR (Video Assistant Referee) è stata adottata ufficialmente a partire dal mondiale di Russia 2018." },
             { question: "Quale giocatore ha vinto 3 Coppe del Mondo da calciatore?", options: ["Diego Maradona", "Pelé", "Franz Beckenbauer", "Garrincha"], correctAnswerIndex: 1, explanation: "Il leggendario Edson Arantes do Nascimento, in arte Pelé, è l'unico giocatore della storia ad aver vinto tre mondiali: 1958, 1962 e 1970." },
             { question: "Chi ha segnato il gol della vittoria per l'Italia nella finale del Campionato Mondiale del 2006?", options: ["Fabio Grosso", "Alessandro Del Piero", "Marco Materazzi", "Francesco Totti"], correctAnswerIndex: 0, explanation: "Fabio Grosso ha segnato l'indimenticabile rigore decisivo della finale contro la Francia dopo i tempi supplementari terminati 1-1." },
             { question: "Quale squadra africana è stata la prima a qualificarsi per una semifinale dei Mondiali?", options: ["Camerun", "Senegal", "Ghana", "Marocco"], correctAnswerIndex: 3, explanation: "Il Marocco ha fatto la storia a Qatar 2022, diventando la prima nazionale del continente africano e del mondo arabo a qualificarsi per le semifinali." },
-            { question: "In quale anno si è tenuto il primo storico Campionato Mondiale di calcio?", options: ["1930", "1934", "1950", "1928"], correctAnswerIndex: 0, explanation: "Il primo mondiale si disputò nel 1930 in Uruguay, e fu vinto proprio dalla nazionale di casa uruguaiana." },
-            { question: "Quale nazione ospiterà i Mondiali del 2026 insieme a Stati Uniti e Canada?", options: ["Brasile", "Messico", "Colombia", "Panama"], correctAnswerIndex: 1, explanation: "I Mondiali del 2026 saranno ospitati congiuntamente da tre paesi: Stati Uniti, Canada e Messico." },
-            { question: "Quale famosissimo calciatore ha segnato la 'Mano de Dios' nel 1986?", options: ["Diego Armando Maradona", "Pelé", "Zico", "Michel Platini"], correctAnswerIndex: 0, explanation: "Diego Armando Maradona segnò il celebre gol di mano contro l'Inghilterra nei quarti di finale di Messico 1986, definendolo scherzosamente segnato dalla 'Mano di Dio'." },
-            { question: "Quale portiere italiano detiene il record di imbattibilità in un singolo mondiale (517 minuti nel 1990)?", options: ["Gianluigi Buffon", "Walter Zenga", "Dino Zoff", "Gianluca Pagliuca"], correctAnswerIndex: 1, explanation: "Walter Zenga, durante i mondiali di Italia '90, mantenne la porta azzurra inviolata per ben 517 minuti consecutivi prima di subire gol da Caniggia." }
+            { question: "In quale anno si è tenuto il primo storico Campionato Mondiale di calcio?", options: ["1930", "1934", "1950", "1928"], correctAnswerIndex: 0, explanation: "Il primo mondiale si disputò nel 1930 in Uruguay, e foi vinto proprio dalla nazionale di casa uruguaiana." },
+            { question: "Quale nazione ospiterà i Mondiali del 2026 insieme a Stati Uniti e Canada?", options: ["Brasile", "Messico", "Colombia", "Panama"], correctAnswerIndex: 1, explanation: "I Mondiali del 2026 saranno ospitati congiuntamente da tre paesi: Stati Uniti, Canada e Messico." }
         ];
 
         // Stati dell'applicazione
@@ -451,6 +470,9 @@
         let filterFavoritesOnly = false;
         let filterTodayOnly = false;
 
+        // Di default, simuliamo la data del 19 Giugno 2026 per poter testare appieno l'applicazione.
+        let simulatedDateMode = localStorage.getItem('rai_worldcup_sim_date_mode') || '2026-06-19';
+
         // Stati del quiz
         let quizScore = parseInt(localStorage.getItem('rai_worldcup_quiz_score_gh')) || 0;
         let quizStreak = 0;
@@ -460,20 +482,105 @@
 
         // Inizializzazione
         window.onload = function() {
+            // Sincronizza il valore del selettore nell'interfaccia utente
+            const selector = document.getElementById('date-simulator-select');
+            if (selector) {
+                selector.value = simulatedDateMode;
+            }
+            
+            // Aggiorna dinamicamente lo stato di ciascun match in base alla data simulata/selezionata
+            updateMatchStatuses();
             // Genera UI filtri
             renderFilters();
             // Genera i programmi RAI
             renderRaiPrograms();
-            // Renderizza i match iniziali
+            // Renderizza i match
             renderMatches();
-            // Avvia countdown
+            // Avvia countdown dinamico per il prossimo match
             startCountdown();
+            
             // Inizializza icone
             lucide.createIcons();
             // Aggiorna badge del punteggio del quiz
             document.getElementById('quiz-badge').innerText = `Score: ${quizScore}`;
             document.getElementById('quiz-total-score').innerText = quizScore;
         };
+
+        // Gestione del cambio data dal menu di simulazione nell'header
+        function handleSimulatedDateChange(value) {
+            simulatedDateMode = value;
+            localStorage.setItem('rai_worldcup_sim_date_mode', value);
+            
+            // Ricalcola tutto all'istante
+            updateMatchStatuses();
+            renderFilters();
+            renderMatches();
+            startCountdown();
+            
+            showToast(`Data di gioco aggiornata!`);
+        }
+
+        // Calcola dinamicamente lo stato del match confrontando la data attuale con quella del match
+        function updateMatchStatuses() {
+            let todayStr = '';
+            
+            if (simulatedDateMode === 'real') {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                todayStr = `${year}-${month}-${day}`;
+            } else {
+                todayStr = simulatedDateMode; // Usa la data fissa della simulazione
+            }
+
+            // Aggiorna il badge della data mostrato in interfaccia
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateToDisplay = new Date(`${todayStr}T12:00:00`);
+            document.getElementById('current-date-badge').innerText = `📅 Oggi: ${dateToDisplay.toLocaleDateString('it-IT', dateOptions)}`;
+
+            INITIAL_MATCHES.forEach(match => {
+                if (match.date < todayStr) {
+                    match.status = 'Terminata';
+                    // Nota: I punteggi reali pre-esistenti e fissi non vengono MAI sovrascritti!
+                    // Solo se una partita passata non avesse punteggio, verrebbe inizializzata
+                    if (match.scoreHome === undefined || match.scoreHome === null) {
+                        match.scoreHome = 0;
+                        match.scoreAway = 0;
+                    }
+                } else if (match.date === todayStr) {
+                    match.status = 'Oggi';
+                } else {
+                    match.status = 'In Arrivo';
+                }
+            });
+        }
+
+        // Trova il prossimo incontro da disputare per la barra laterale/countdown
+        function getBannerMatch() {
+            let todayStr = '';
+            if (simulatedDateMode === 'real') {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                todayStr = `${year}-${month}-${day}`;
+            } else {
+                todayStr = simulatedDateMode;
+            }
+
+            // Trova partite di oggi o future
+            const upcoming = INITIAL_MATCHES.filter(m => m.date >= todayStr);
+            if (upcoming.length > 0) {
+                // Ordina per data e ora
+                upcoming.sort((a, b) => {
+                    if (a.date !== b.date) return a.date.localeCompare(b.date);
+                    return a.time.localeCompare(b.time);
+                });
+                return upcoming[0];
+            }
+            return null;
+        }
 
         // Gestione Toast personalizzati
         function showToast(message) {
@@ -486,9 +593,27 @@
             }, 3000);
         }
 
-        // Countdown dinamico per la gara principale di stasera (Svizzera vs Bosnia ore 21:00)
+        // Timer di intervallo per il countdown globale
+        let countdownIntervalId = null;
+
+        // Countdown dinamico legato al prossimo match effettivo rilevato
         function startCountdown() {
-            const targetDate = new Date('2026-06-18T21:00:00+02:00'); // fuso italiano
+            if (countdownIntervalId) {
+                clearInterval(countdownIntervalId);
+            }
+
+            const nextMatch = getBannerMatch();
+            if (!nextMatch) {
+                document.getElementById('countdown-timer').innerHTML = '<span class="text-slate-400 font-bold">Mondiali Conclusi!</span>';
+                document.getElementById('banner-match-teams').innerText = 'Arrivederci al 2030!';
+                return;
+            }
+
+            // Aggiorna dati banner
+            document.getElementById('banner-match-teams').innerHTML = `${nextMatch.flagHome} ${nextMatch.teamHome} - ${nextMatch.teamAway} ${nextMatch.flagAway}`;
+            document.getElementById('banner-status-badge').innerText = nextMatch.status === 'Oggi' ? 'Oggi in Chiaro' : 'Prossimo Match in Chiaro';
+
+            const targetDate = new Date(`${nextMatch.date}T${nextMatch.time}:00`);
             
             function updateTimer() {
                 const now = new Date();
@@ -509,7 +634,7 @@
             }
             
             updateTimer();
-            setInterval(updateTimer, 1000);
+            countdownIntervalId = setInterval(updateTimer, 1000);
         }
 
         // Filtri di rendering
@@ -542,7 +667,6 @@
         }
 
         function updateFilterUIActiveStates() {
-            // Evidenzia fase attiva
             const phases = ['Tutte', 'Gironi', 'Sedicesimi', 'Ottavi', 'Quarti', 'Semifinali', 'Finali'];
             phases.forEach(p => {
                 const btn = document.getElementById(`phase-btn-${p}`);
@@ -554,7 +678,6 @@
                 }
             });
 
-            // Evidenzia canale attivo
             const channels = ['Tutti', 'Rai 1', 'Rai 2'];
             channels.forEach(c => {
                 const btn = document.getElementById(`chan-btn-${c}`);
@@ -566,7 +689,6 @@
                 }
             });
 
-            // Scorciatoie
             const btnToday = document.getElementById('btn-filter-today');
             if (filterTodayOnly) {
                 btnToday.className = "w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-all bg-red-500/15 border border-red-500/40 text-red-400";
@@ -582,9 +704,10 @@
             }
 
             document.getElementById('count-favs').innerText = favorites.length;
+            document.getElementById('count-today').innerText = INITIAL_MATCHES.filter(m => m.status === 'Oggi').length;
         }
 
-        // Set dei filtri
+        // Impostazione filtri
         function setPhaseFilter(phase) {
             selectedPhase = phase;
             updateFilterUIActiveStates();
@@ -609,13 +732,11 @@
             renderMatches();
         }
 
-        // Cerca input listener
         document.getElementById('search-input').addEventListener('input', (e) => {
             searchTerm = e.target.value.toLowerCase();
             renderMatches();
         });
 
-        // Programmi RAI
         function renderRaiPrograms() {
             const container = document.getElementById('programs-container');
             container.innerHTML = RAI_PROGRAMS.map(prog => `
@@ -634,7 +755,6 @@
             `).join('');
         }
 
-        // Render principale dei match
         function renderMatches() {
             const container = document.getElementById('matches-list');
             
@@ -685,7 +805,7 @@
                             <div class="flex flex-col justify-between space-y-3 min-w-[140px]">
                                 <div>
                                     <span class="inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-400">
-                                      {match.phase} ${match.phase} • ${match.group}
+                                      ${match.phase} • ${match.group}
                                     </span>
                                     <div class="flex items-center gap-2 mt-2">
                                         ${isToday ? `
@@ -789,14 +909,12 @@
                                 </div>
 
                                 <div class="flex items-center gap-1.5">
-                                    <!-- Stella preferito -->
                                     <button onclick="toggleFavorite(${match.id})" class="p-2.5 rounded-xl border transition-all ${
                                         isFav ? 'bg-amber-500/15 border-amber-500/30 text-amber-400' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-100 hover:bg-slate-800'
                                     }">
                                         <i data-lucide="star" class="w-4 h-4 ${isFav ? 'fill-amber-400' : ''}"></i>
                                     </button>
 
-                                    <!-- Bell Notifica -->
                                     ${!isFinished ? `
                                         <button onclick="toggleNotification(${match.id})" class="p-2.5 rounded-xl border transition-all ${
                                             isNotified ? 'bg-blue-500/15 border-blue-500/30 text-blue-400' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-100 hover:bg-slate-800'
@@ -805,7 +923,6 @@
                                         </button>
                                     ` : ''}
 
-                                    <!-- Share -->
                                     <button onclick="shareMatch(${match.id})" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-all">
                                         <i data-lucide="share-2" class="w-4 h-4"></i>
                                     </button>
@@ -828,7 +945,6 @@
             lucide.createIcons();
         }
 
-        // Toggle Preferiti
         function toggleFavorite(id) {
             if (favorites.includes(id)) {
                 favorites = favorites.filter(favId => favId !== id);
@@ -842,7 +958,6 @@
             renderMatches();
         }
 
-        // Toggle Notifiche
         function toggleNotification(id) {
             if (notifications.includes(id)) {
                 notifications = notifications.filter(notifId => notifId !== id);
@@ -855,12 +970,10 @@
             renderMatches();
         }
 
-        // Condivisione partita negli appunti (ottimizzato per iFrame e GitHub Pages)
         function shareMatch(id) {
             const match = INITIAL_MATCHES.find(m => m.id === id);
             const shareText = `🏆 Guarda ${match.teamHome} vs ${match.teamAway} in chiaro su ${match.channel}! Il ${new Date(match.date).toLocaleDateString('it-IT')} alle ore ${match.time}.`;
             
-            // Fallback robusto per copia
             const textarea = document.createElement('textarea');
             textarea.value = shareText;
             document.body.appendChild(textarea);
@@ -868,10 +981,10 @@
             document.execCommand('copy');
             document.body.removeChild(textarea);
             
-            showToast("Invito e palinsesto copiati negli appunti! Condividilo con i tuoi amici su WhatsApp 📲");
+            showToast("Invito copiato negli appunti! Condividilo su WhatsApp 📲");
         }
 
-        // --- SISTEMA QUIZ OFFLINE (Sostituto AI autogestito) ---
+        // --- SISTEMA QUIZ OFFLINE ---
         function openQuiz() {
             document.getElementById('quiz-modal').classList.remove('hidden');
             loadQuizQuestion();
@@ -882,7 +995,6 @@
         }
 
         function loadQuizQuestion() {
-            // Seleziona una domanda casuale dal pool
             const randIdx = Math.floor(Math.random() * TRIVIA_QUESTIONS.length);
             currentQuestion = TRIVIA_QUESTIONS[randIdx];
             selectedAnswerIdx = null;
@@ -906,7 +1018,6 @@
             if (quizSubmitted) return;
             selectedAnswerIdx = index;
             
-            // Ripristina stili vecchi e applica stile selezione
             currentQuestion.options.forEach((_, idx) => {
                 const opt = document.getElementById(`quiz-opt-${idx}`);
                 if (idx === index) {
@@ -925,7 +1036,6 @@
 
             const correctIdx = currentQuestion.correctAnswerIndex;
 
-            // Aggiorna grafica opzioni
             currentQuestion.options.forEach((_, idx) => {
                 const opt = document.getElementById(`quiz-opt-${idx}`);
                 if (idx === correctIdx) {
@@ -938,23 +1048,20 @@
                 }
             });
 
-            // Calcola punteggio
             if (selectedAnswerIdx === correctIdx) {
                 quizScore += 10;
                 quizStreak += 1;
                 showToast("Esatto! +10 Punti! 🎉");
             } else {
                 quizStreak = 0;
-                showToast("Risposta errata, riprova con la prossima! ❌");
+                showToast("Risposta errata! ❌");
             }
 
-            // Salva e aggiorna UI
             localStorage.setItem('rai_worldcup_quiz_score_gh', quizScore);
             document.getElementById('quiz-badge').innerText = `Score: ${quizScore}`;
             document.getElementById('quiz-total-score').innerText = quizScore;
             document.getElementById('quiz-streak').innerText = `${quizStreak} 🔥`;
 
-            // Mostra spiegazione storica
             document.getElementById('quiz-explanation-text').innerText = currentQuestion.explanation;
             document.getElementById('quiz-explanation').classList.remove('hidden');
 
@@ -971,7 +1078,6 @@
 
             document.getElementById('actions-modal-title').innerText = `${match.teamHome} vs ${match.teamAway}`;
             
-            // Genera ricette
             const recipeHome = RECIPES_DB[match.teamHome] || { title: `Ricetta di ${match.teamHome} 🍲`, recipe: 'Focaccia dorata salata con erbe aromatiche del posto, perfetta per seguire il match.' };
             const recipeAway = RECIPES_DB[match.teamAway] || { title: `Ricetta di ${match.teamAway} 🍲`, recipe: 'Spuntino sfizioso con formaggio locale e salse d\'accompagnamento tradizionali.' };
 
@@ -986,7 +1092,6 @@
                 </div>
             `;
 
-            // Genera note e curiosità storiche
             const trivia = MATCH_TRIVIA_DB[match.id] || `Questo scontro tra ${match.teamHome} e ${match.teamAway} promette scintille. Le due squadre vantano una solida tradizione calcistica e si sfideranno per strappare un posto d'oro per la qualificazione ai sedicesimi di finale dei Mondiali 2026.`;
             document.getElementById('match-trivia-content').innerText = trivia;
 
